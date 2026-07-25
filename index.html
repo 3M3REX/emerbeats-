@@ -23,14 +23,14 @@
 
         /* Heavy static noise overlay */
         .noise-layer {
-            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.15;
+            position: fixed; inset: -140px 0; z-index: 9999; pointer-events: none; opacity: 0.15;
             background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
             mix-blend-mode: overlay;
         }
 
         /* Grungy Dirt & Scratches Layer */
         .dirt-layer {
-            position: fixed; inset: 0; z-index: 9998; pointer-events: none; opacity: 0.35;
+            position: fixed; inset: -140px 0; z-index: 9998; pointer-events: none; opacity: 0.35;
             background-image:
                 url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="dirt"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23dirt)"/%3E%3C/svg%3E'),
                 repeating-linear-gradient(63deg, transparent, transparent 150px, rgba(255,255,255,0.06) 150px, rgba(255,255,255,0.06) 151px),
@@ -40,8 +40,8 @@
 
         /* Dark Vignette */
         .vignette {
-            position: fixed; inset: 0; z-index: 9997; pointer-events: none;
-            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.95) 100%);
+            position: fixed; inset: -140px 0; z-index: 9997; pointer-events: none;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.98) 100%);
         }
 
         /* Scanlines */
