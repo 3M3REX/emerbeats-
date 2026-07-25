@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmerBeats | PROD . BEATS . MIX . MASTER</title>
+    <meta name="description" content="EmerBeats — dark trap, rage & opium type beats. Buy leases, trackouts and exclusive rights. Prod. Beats. Mix. Master.">
+    <meta name="theme-color" content="#050505">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%80%3C/text%3E%3C/svg%3E">
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content="EmerBeats | PROD . BEATS . MIX . MASTER">
+    <meta property="og:description" content="Dark trap, rage & opium type beats. Leases, trackouts & exclusives.">
+    <meta property="og:type" content="website">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        .font-gothic { font-family: 'UnifrakturMaguntia', cursive; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+
+        /* Heavy static noise overlay */
+        .noise-layer {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.15;
+            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+            mix-blend-mode: overlay;
+        }
+
+        /* Grungy Dirt & Scratches Layer */
+        .dirt-layer {
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none; opacity: 0.35;
+            background-image:
+                url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="dirt"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23dirt)"/%3E%3C/svg%3E'),
+                repeating-linear-gradient(63deg, transparent, transparent 150px, rgba(255,255,255,0.06) 150px, rgba(255,255,255,0.06) 151px),
+                repeating-linear-gradient(-42deg, transparent, transparent 80px, rgba(0,0,0,0.8) 80px, rgba(0,0,0,0.8) 82px);
+            mix-blend-mode: overlay;
+        }
+
+        /* Dark Vignette */
+        .vignette {
+            position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.95) 100%);
+        }
+
+        /* Scanlines */
+        .scanlines::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 50; background-size: 100% 4px; pointer-events: none;
+        }
+
+        /* Smooth invert + glow on hover (replaces the jittery glitch) */
+        .glitch-hover {
+            position: relative;
+            transition: background-color .25s ease, color .25s ease, letter-spacing .25s ease, box-shadow .25s ease;
+        }
+        .glitch-hover:hover {
+            background-color: #ffffff;
+            color: #000000;
+            letter-spacing: 0.12em;
+            box-shadow: 0 0 18px rgba(255,255,255,0.35);
+        }
+        .glitch-hover:active { transform: scale(0.97); }
+
+        @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+
+        @keyframes flicker {
+            0%,100% { opacity: 1 }
+            50% { opacity: 0.4 }
+        }
+        .flicker { animation: flicker 3s infinite; }
+
+        /* Marquee */
+        .marquee { overflow: hidden; white-space: nowrap; }
+        .marquee > span { display: inline-block; padding-left: 100%; animation: marquee 22s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0) } 100% { transform: translateX(-100%) } }
+
+        /* Sigilism / Y2K Ornaments */
+        .sigil-ornament {
+            position: absolute; pointer-events: none; z-index: 20;
+            filter: invert(1) contrast(150%) brightness(150%); mix-blend-mode: screen;
+        }
+
+        body { background-color: #050505; color: #e5e5e5; overflow-x: hidden; }
+
+        .invert-hover:hover img.cover-art { filter: invert(1) contrast(150%) grayscale(100%); }
+        .hidden-tab { display: none !important; }
+
+        /* Waveform */
+        .wf { display: flex; align-items: center; gap: 2px; height: 40px; position: relative; cursor: pointer; }
+        .wf-bar { flex: 1; min-width: 1px; background: #3f3f46; transition: background 0.15s; }
+        .wf.is-active .wf-bar { background: #52525b; }
+        .wf-bar.played { background: #ffffff; }
+        /* Playing row is white — flip the waveform colours so progress stays visible */
+        .wf.on-light .wf-bar { background: #bcbcc2; }
+        .wf.on-light .wf-bar.played { background: #000000; }
+
+        /* ===== PREMIUM ANIMATIONS ===== */
+        /* Soft white glow that follows the cursor */
+        #cursor-glow {
+            position: fixed; top: 0; left: 0; width: 460px; height: 460px;
+            z-index: 9995; pointer-events: none; opacity: 0;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 35%, transparent 65%);
+            mix-blend-mode: screen; transition: opacity .4s ease;
+            will-change: transform;
+        }
+
+        /* Generic hover-zoom */
+        .zoom-hover { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease; will-change: transform; }
+        .zoom-hover:hover { transform: scale(1.04); }
+
+        /* Product cards — lift + glow + brighten border on hover */
+        .premium-card { transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, border-color .4s ease; will-change: transform; }
+        .premium-card:hover {
+            transform: translateY(-8px) scale(1.012);
+            border-color: rgba(255,255,255,0.65);
+            box-shadow: 0 16px 50px rgba(0,0,0,.65), 0 0 34px rgba(255,255,255,.08);
+        }
+
+        /* Scroll-reveal */
+        .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+        .reveal.revealed { opacity: 1; transform: none; }
+
+        /* Staggered card entrance */
+        @keyframes cardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+        .card-in { animation: cardIn .5s cubic-bezier(.2,.8,.2,1) both; }
+
+        /* Smooth defaults for interactive bits */
+        button, a, .beat-row, .lic-card { transition: transform .25s ease, background-color .25s ease, color .25s ease, box-shadow .25s ease; }
+        .beat-row:hover { box-shadow: inset 3px 0 0 rgba(255,255,255,.9); }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            .card-in { animation: none; }
+            .premium-card:hover, .zoom-hover:hover { transform: none; }
+        }
+
+        /* Scrollbar */
+        #cart-items::-webkit-scrollbar { width: 4px; }
+        #cart-items::-webkit-scrollbar-thumb { background: #fff; }
+
+        /* Modal */
+        .modal-back { background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
+        .lic-card { transition: all 0.15s; }
+        .lic-card:hover, .lic-card.sel { background: #fff; color: #000; }
+        .lic-card:hover .lic-mono, .lic-card.sel .lic-mono { color: #000; }
+    </style>
+</head>
+<body class="selection:bg-white selection:text-black pb-40">
+
+    <canvas id="particles" class="fixed inset-0 z-[9996] pointer-events-none"></canvas>
+    <div id="cursor-glow"></div>
+    <div class="vignette"></div>
+    <div class="dirt-layer"></div>
+    <div class="noise-layer"></div>
+
+    <!-- NAV -->
+    <nav class="fixed top-0 w-full z-[10000] bg-black">
+        <div class="w-full px-6 sm:px-12 py-4 sm:py-6 flex justify-between items-center border-b border-white/20 relative">
+            <a href="#top" class="flex flex-col relative z-10">
+                <span class="font-gothic text-3xl sm:text-4xl text-white tracking-widest mt-1">EmerBeats</span>
+                <span class="font-mono text-[9px] sm:text-[10px] text-zinc-400 tracking-[0.3em] uppercase mt-1">Prod . Beats . Mix . Master</span>
+            </a>
+
+            <div class="hidden md:flex gap-7 lg:gap-9 font-mono text-xs uppercase tracking-[0.3em] absolute left-1/2 -translate-x-1/2">
+                <button onclick="switchTab('beats')" id="btn-beats" class="text-white border-b border-white transition-all">[ Instrumentals ]</button>
+                <button onclick="switchTab('kits')" id="btn-kits" class="text-zinc-500 hover:text-white transition-all">[ Drum Kits ]</button>
+                <button onclick="switchTab('faq')" id="btn-faq" class="text-zinc-500 hover:text-white transition-all">[ FAQ ]</button>
+            </div>
+
+            <div class="flex items-center gap-3 relative z-10">
+                <button onclick="toggleCart()" class="flex items-center gap-2 font-mono text-xs sm:text-sm uppercase glitch-hover px-3 sm:px-4 py-2 border border-white">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    (<span id="cart-count">0</span>)
+                </button>
+                <button onclick="toggleMobileMenu()" class="md:hidden border border-white p-2" aria-label="Menu">
+                    <i data-lucide="menu" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden-tab border-b border-white/20 bg-black font-mono text-sm uppercase tracking-[0.3em]">
+            <button onclick="switchTab('beats'); toggleMobileMenu()" class="block w-full text-left px-6 py-4 border-b border-white/10 text-white hover:bg-zinc-900">[ Instrumentals ]</button>
+            <button onclick="switchTab('kits'); toggleMobileMenu()" class="block w-full text-left px-6 py-4 border-b border-white/10 text-zinc-400 hover:bg-zinc-900">[ Drum Kits ]</button>
+            <button onclick="switchTab('faq'); toggleMobileMenu()" class="block w-full text-left px-6 py-4 text-zinc-400 hover:bg-zinc-900">[ FAQ ]</button>
+        </div>
+    </nav>
+
+    <main id="top">
+        <!-- HERO -->
+        <div class="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black scanlines">
+            <div class="absolute inset-0 z-0">
+                <img src="image/123123.jpg" alt="Background" class="w-full h-full object-cover opacity-40 grayscale contrast-150 mix-blend-luminosity" onerror="this.style.display='none'"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
+            </div>
+
+            <img src="image/Без названия (8).webp" alt="sigil" class="sigil-ornament !z-[2] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[620px] md:w-[950px] md:h-[950px] lg:w-[1100px] lg:h-[1100px] object-contain opacity-30 animate-pulse" onerror="this.style.display='none'" />
+            <img src="image/Без названия (11).webp" alt="sigil" class="sigil-ornament top-32 left-10 w-48 rotate-[15deg] opacity-70 hidden sm:block" onerror="this.style.display='none'" />
+            <img src="image/Без названия (15).webp" alt="sigil" class="sigil-ornament bottom-10 right-10 w-64 -rotate-[15deg] opacity-70 hidden sm:block" onerror="this.style.display='none'" />
+
+            <div class="relative z-10 text-center flex flex-col items-center justify-center h-full px-4">
+                <h1 class="font-gothic text-7xl md:text-9xl lg:text-[10rem] text-white tracking-tighter mix-blend-exclusion leading-none" style="text-shadow: 6px 6px 0 #000">
+                    EmerBeats
+                </h1>
+                <div class="mt-8 bg-black/40 backdrop-blur-md border-t border-b border-white/20 py-4 px-8">
+                    <p class="font-mono text-zinc-300 text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.4em] sm:tracking-[0.6em] whitespace-nowrap">
+                        PROD . BEATS . MIX . MASTER
+                    </p>
+                </div>
+                <button onclick="document.getElementById('tab-beats').scrollIntoView({behavior:'smooth'}); switchTab('beats');"
+                    class="mt-10 group flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors">
+                    <span>Enter the Store</span>
+                    <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- INSTRUMENTALS -->
+        <div id="tab-beats" class="w-full max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24 relative block scroll-mt-24">
+            <img src="image/Без названия (94).jpg" alt="stars" class="sigil-ornament -top-10 right-0 w-32 opacity-40" onerror="this.style.display='none'" />
+
+            <div class="reveal flex items-end justify-between mb-8 border-b-2 border-white pb-4">
+                <h2 class="font-gothic text-white relative leading-none flex items-baseline">
+                    <span class="text-5xl sm:text-6xl">I</span><span class="text-2xl sm:text-3xl">NSTRUMENTALS</span>
+                </h2>
+                <span id="beats-subtitle" class="font-mono text-xs uppercase text-zinc-500">Albums</span>
+            </div>
+
+            <!-- ALBUMS VIEW -->
+            <div id="albums-view">
+                <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                    <div class="flex items-center gap-3 border border-white/30 px-4 py-2 flex-grow bg-black focus-within:border-white transition-colors">
+                        <i data-lucide="search" class="w-4 h-4 text-zinc-500"></i>
+                        <input id="beat-search" oninput="renderAlbums()" type="text" placeholder="SEARCH ALBUM / TITLE / BPM / KEY..."
+                            class="bg-transparent w-full font-mono text-xs uppercase tracking-widest text-white placeholder-zinc-600 outline-none"/>
+                    </div>
+                    <div id="tag-filters" class="flex flex-wrap gap-2 font-mono text-[10px] uppercase"></div>
+                </div>
+
+                <div id="albums-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <p id="albums-empty" class="hidden-tab font-mono text-xs uppercase text-zinc-600 text-center py-12">// No signal found in the void</p>
+            </div>
+
+            <!-- ALBUM DETAIL VIEW -->
+            <div id="album-detail-view" class="hidden-tab">
+                <button onclick="closeAlbum()" class="group flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-colors mb-8">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> All Albums
+                </button>
+
+                <div class="flex items-center gap-5 sm:gap-6 mb-8">
+                    <img id="album-cover" src="" alt="album" class="w-24 h-24 sm:w-32 sm:h-32 object-cover contrast-110 border border-white/30 shrink-0" onerror="this.src='https://placehold.co/300x300/111/555?text=EMER'"/>
+                    <div class="min-w-0">
+                        <h3 id="album-title" class="font-gothic text-4xl sm:text-5xl text-white leading-none"></h3>
+                        <p id="album-meta" class="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mt-2"></p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col border border-white/20 relative" id="beats-container">
+                    <div class="absolute -top-1 -left-1 w-2 h-2 bg-white"></div>
+                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-white"></div>
+                    <div class="absolute -bottom-1 -left-1 w-2 h-2 bg-white"></div>
+                    <div class="absolute -bottom-1 -right-1 w-2 h-2 bg-white"></div>
+                </div>
+            </div>
+
+            <!-- LICENSING INFO (only inside the Instrumentals tab) -->
+            <div id="licensing" class="reveal pt-20 scroll-mt-24">
+                <div class="flex items-end justify-between mb-8 border-b border-white/20 pb-4">
+                    <h2 class="font-gothic text-3xl sm:text-4xl text-white">Licensing</h2>
+                    <span class="font-mono text-[10px] uppercase text-zinc-500">Instant contract on checkout</span>
+                </div>
+                <div id="license-grid" class="grid grid-cols-2 lg:grid-cols-5 gap-3 font-mono"></div>
+            </div>
+        </div>
+
+        <!-- STASH -->
+        <div id="tab-kits" class="w-full max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24 relative hidden-tab scroll-mt-24">
+            <img src="image/Без названия (16).webp" alt="sigil" class="sigil-ornament top-0 left-0 w-40 opacity-30 -translate-x-1/2 -translate-y-1/2" onerror="this.style.display='none'" />
+
+            <div class="reveal flex items-end justify-between mb-12 border-b-2 border-white pb-4">
+                <h2 class="font-gothic text-4xl sm:text-5xl text-white">DRUM KITS</h2>
+                <span class="font-mono text-xs uppercase text-zinc-500">808s · Drums · One-shots</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="kits-container"></div>
+        </div>
+
+        <!-- FAQ -->
+        <div id="tab-faq" class="w-full max-w-4xl mx-auto px-4 sm:px-8 py-16 sm:py-24 relative hidden-tab scroll-mt-24">
+            <img src="image/Без названия (17).webp" alt="sigil" class="sigil-ornament top-0 right-0 w-32 opacity-30" onerror="this.style.display='none'" />
+
+            <div class="reveal flex items-end justify-between mb-12 border-b-2 border-white pb-4">
+                <h2 class="font-gothic text-4xl sm:text-5xl text-white">F.A.Q.</h2>
+                <span class="font-mono text-xs uppercase text-zinc-500">Read before you buy</span>
+            </div>
+
+            <!-- Block 1: general questions -->
+            <div class="flex items-center gap-3 mb-4">
+                <i data-lucide="help-circle" class="w-5 h-5 text-white"></i>
+                <h3 class="font-gothic text-3xl text-white">General</h3>
+            </div>
+            <div id="faq-general" class="flex flex-col border border-white/20 mb-14"></div>
+
+            <!-- Block 2: licensing & rights -->
+            <div class="flex items-center gap-3 mb-1">
+                <i data-lucide="scroll-text" class="w-5 h-5 text-white"></i>
+                <h3 class="font-gothic text-3xl text-white">Licensing &amp; Rights</h3>
+            </div>
+            <p class="font-mono text-[10px] uppercase text-zinc-500 mb-4 tracking-widest pl-8">Your rights &amp; limits on every license</p>
+            <div id="faq-licensing" class="flex flex-col border border-white/20"></div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="w-full max-w-6xl mx-auto px-4 sm:px-8 pb-32 mt-12 relative">
+            <img src="image/Без названия (11).webp" alt="sigil" class="sigil-ornament top-0 right-10 w-48 opacity-40 rotate-180" onerror="this.style.display='none'" />
+
+            <div class="reveal border border-white relative overflow-hidden bg-zinc-950 grid md:grid-cols-2">
+                <!-- Left: plates + buttons -->
+                <div class="p-8 md:p-14 flex flex-col justify-center relative z-10 order-2 md:order-1">
+                    <h3 class="font-gothic text-4xl md:text-6xl text-white uppercase mb-4">Contact Entity</h3>
+                    <p class="font-mono text-xs uppercase text-zinc-500 mb-8 tracking-widest max-w-md">Custom beats · mixing · exclusive inquiries. Summon me on the channels below.</p>
+
+                    <!-- Plates -->
+                    <div class="grid grid-cols-3 gap-2 mb-8">
+                        <div class="zoom-hover hover:border-white border border-white/20 bg-black py-4 px-2 text-center flex flex-col items-center gap-2">
+                            <i data-lucide="music-2" class="w-5 h-5 text-white"></i>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-zinc-400">Custom Beats</span>
+                        </div>
+                        <div class="zoom-hover hover:border-white border border-white/20 bg-black py-4 px-2 text-center flex flex-col items-center gap-2">
+                            <i data-lucide="sliders-horizontal" class="w-5 h-5 text-white"></i>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-zinc-400">Mix &amp; Master</span>
+                        </div>
+                        <div class="zoom-hover hover:border-white border border-white/20 bg-black py-4 px-2 text-center flex flex-col items-center gap-2">
+                            <i data-lucide="crown" class="w-5 h-5 text-white"></i>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-zinc-400">Exclusive</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#" target="_blank" rel="noopener" class="tg-link font-mono text-xs uppercase tracking-widest border border-white px-6 py-3 bg-white text-black hover:bg-zinc-300 transition-colors flex items-center gap-2 font-bold"><i data-lucide="send" class="w-4 h-4"></i> Write on Telegram</a>
+                        <a href="https://www.youtube.com/@EmerBeats" target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-widest border border-white px-6 py-3 bg-black glitch-hover flex items-center gap-2"><i data-lucide="youtube" class="w-4 h-4"></i> YouTube</a>
+                    </div>
+                </div>
+
+                <!-- Right: big spinning ornament -->
+                <div class="relative min-h-[260px] md:min-h-full flex items-center justify-center overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-white/20">
+                    <img src="image/Без названия (8).webp" alt="halo" class="sigil-ornament w-[110%] max-w-none aspect-square object-contain opacity-40" style="animation: spin 22s linear infinite;" onerror="this.style.display='none'" />
+                    <img src="image/Без названия (15).webp" alt="sigil" class="sigil-ornament w-1/2 object-contain opacity-30" style="animation: spin 30s linear infinite reverse;" onerror="this.style.display='none'" />
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Overlay -->
+    <div id="cart-overlay" class="fixed top-24 right-4 z-[10001] bg-black border-2 border-white p-6 w-80 max-w-[calc(100vw-2rem)] font-mono scanlines hidden-tab shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+        <div class="flex justify-between items-center mb-6 border-b border-white pb-2">
+            <h4 class="text-white font-bold uppercase tracking-widest">Cart</h4>
+            <button onclick="toggleCart()" class="text-white border border-white px-2 py-1 text-xs hover:bg-white hover:text-black transition-colors">[ X ]</button>
+        </div>
+        <div id="cart-items" class="max-h-60 overflow-y-auto mb-6 flex flex-col gap-4">
+            <p class="text-zinc-600 text-xs uppercase text-center py-6">Cart is empty</p>
+        </div>
+        <div class="flex justify-between items-center mb-4 text-sm">
+            <span class="text-zinc-500 uppercase">Total_</span>
+            <span class="text-white font-bold text-lg">$<span id="cart-total">0.00</span></span>
+        </div>
+        <button onclick="checkoutBot()" class="w-full bg-white text-black font-bold uppercase py-4 hover:bg-zinc-300 transition-colors flex items-center justify-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i> Checkout</button>
+    </div>
+
+    <!-- License Modal -->
+    <div id="license-modal" class="fixed inset-0 z-[10002] modal-back hidden-tab flex items-center justify-center p-4" onclick="if(event.target===this) closeLicense()">
+        <div class="bg-black border-2 border-white w-full max-w-3xl max-h-[90vh] overflow-y-auto scanlines relative">
+            <div class="flex justify-between items-start p-6 border-b border-white/20">
+                <div>
+                    <p class="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Choose a license for</p>
+                    <h3 id="lic-modal-title" class="font-gothic text-3xl text-white mt-1">TRACK</h3>
+                    <p id="lic-modal-meta" class="font-mono text-[10px] uppercase text-zinc-600 mt-1"></p>
+                </div>
+                <button onclick="closeLicense()" class="font-mono text-white border border-white px-3 py-1 text-xs hover:bg-white hover:text-black transition-colors">[ ESC ]</button>
+            </div>
+            <div id="lic-options" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-6"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-white/20">
+                <p class="font-mono text-[10px] uppercase text-zinc-500">Selected: <span id="lic-selected-name" class="text-white">—</span></p>
+                <button id="lic-add-btn" onclick="confirmLicense()" disabled
+                    class="font-mono uppercase text-sm bg-white text-black px-8 py-3 font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-300 transition-colors w-full sm:w-auto">
+                    Add to Cart · $<span id="lic-price">0.00</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kit Detail Modal -->
+    <div id="kit-modal" class="fixed inset-0 z-[10002] modal-back hidden-tab flex items-center justify-center p-4" onclick="if(event.target===this) closeKitModal()">
+        <div id="kit-modal-body" class="bg-black border-2 border-white w-full max-w-3xl max-h-[90vh] overflow-hidden scanlines"></div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="fixed inset-0 z-[10003] modal-back hidden-tab flex items-center justify-center p-4" onclick="if(event.target===this) closeOrder()">
+        <div class="bg-black border-2 border-white w-full max-w-md scanlines relative">
+            <div class="flex justify-between items-center p-6 border-b border-white/20">
+                <h3 class="font-gothic text-3xl text-white">Your order</h3>
+                <button onclick="closeOrder()" class="font-mono text-white border border-white px-3 py-1 text-xs hover:bg-white hover:text-black transition-colors">[ X ]</button>
+            </div>
+            <div class="p-6 font-mono">
+                <div id="order-list" class="flex flex-col mb-4 max-h-44 overflow-y-auto text-xs uppercase"></div>
+                <div class="flex justify-between items-center border-t border-white/20 pt-4 mb-5">
+                    <span class="text-zinc-500 uppercase text-sm">Total</span>
+                    <span class="text-white font-bold text-xl">$<span id="order-total">0.00</span></span>
+                </div>
+                <p class="text-[10px] uppercase text-zinc-400 tracking-widest leading-relaxed mb-3">Copy your order and send it to the bot to pay. It contains each item and its code.</p>
+                <textarea id="order-text" readonly onclick="this.select()" class="w-full bg-zinc-950 border border-white/30 p-3 text-white text-[11px] leading-relaxed h-28 resize-none outline-none focus:border-white mb-4"></textarea>
+                <div class="flex flex-col gap-3">
+                    <button onclick="copyOrderText()" class="w-full border border-white text-white font-bold uppercase py-3 hover:bg-white hover:text-black transition-colors flex items-center justify-center gap-2"><i data-lucide="copy" class="w-4 h-4"></i> Copy order</button>
+                    <a href="#" target="_blank" rel="noopener" onclick="copyOrderText()" class="tg-link w-full bg-white text-black font-bold uppercase py-4 hover:bg-zinc-300 transition-colors flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i> Open @EmerBeatsBot</a>
+                </div>
+                <p class="text-[10px] text-zinc-600 uppercase text-center mt-4 leading-relaxed">USDT / crypto payment via the bot. Files &amp; license are delivered after payment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[10004] bg-white text-black font-mono text-xs uppercase tracking-widest px-6 py-3 hidden-tab shadow-lg">Added</div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/20 bg-black pt-12 pb-24 text-center font-mono uppercase text-xs relative z-10">
+        <div class="flex flex-col items-center justify-center">
+            <i data-lucide="skull" class="w-6 h-6 text-zinc-700 mb-4"></i>
+            <p class="text-zinc-600 tracking-[0.3em]">© 2026 EmerBeats.</p>
+            <p class="text-zinc-800 mt-2">NO COPYRIGHT INTENDED. ALL RIGHTS RESERVED.</p>
+            <button id="admin-trigger" onclick="openAdmin()" class="hidden-tab mt-6 flex items-center gap-2 text-zinc-700 hover:text-white transition-colors tracking-[0.3em] text-[10px]">
+                <i data-lucide="settings" class="w-3 h-3"></i> Manage catalog
+            </button>
+        </div>
+    </footer>
+
+    <!-- Hidden audio element for real mp3 previews -->
+    <audio id="audio-el" preload="none"></audio>
+
+    <!-- ADMIN PANEL -->
+    <div id="admin-overlay" class="fixed inset-0 z-[100000] bg-black hidden-tab overflow-y-auto">
+        <!-- Login -->
+        <div id="admin-login" class="min-h-screen flex items-center justify-center p-4">
+            <div class="border-2 border-white bg-zinc-950 p-8 w-full max-w-sm font-mono scanlines relative">
+                <h2 class="font-gothic text-5xl text-white mb-2">Admin</h2>
+                <p class="text-[10px] uppercase text-zinc-500 mb-6 tracking-[0.3em]">Enter PIN to manage the store</p>
+                <input id="admin-pin" type="password" placeholder="••••" onkeydown="if(event.key==='Enter') submitAdminPin()"
+                    class="w-full bg-transparent border border-white/30 px-4 py-3 text-white text-center text-2xl tracking-[0.5em] outline-none focus:border-white mb-2"/>
+                <p id="admin-pin-err" class="text-red-500 text-[10px] uppercase text-center mb-3 hidden-tab">Wrong PIN</p>
+                <button onclick="submitAdminPin()" class="w-full bg-white text-black font-bold uppercase py-3 hover:bg-zinc-300 transition-colors">Enter</button>
+                <button onclick="closeAdmin()" class="w-full mt-2 text-zinc-500 hover:text-white text-[10px] uppercase py-2 tracking-widest">Cancel</button>
+                <p class="text-zinc-700 text-[9px] uppercase text-center mt-4 tracking-widest">Default PIN: 1234 · change it in Settings</p>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div id="admin-body" class="hidden-tab max-w-4xl mx-auto p-4 sm:p-8 font-mono">
+            <div class="flex items-center justify-between mb-8 border-b border-white/20 pb-4 sticky top-0 bg-black py-4 z-10 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div>
+                    <h2 class="font-gothic text-4xl text-white leading-none">Store Manager</h2>
+                    <p class="text-[10px] uppercase text-zinc-500 tracking-widest mt-1">Changes save automatically to this browser</p>
+                </div>
+                <button onclick="closeAdmin()" class="border border-white px-4 py-2 text-xs uppercase text-white hover:bg-white hover:text-black transition-colors flex items-center gap-2"><i data-lucide="eye" class="w-4 h-4"></i> View Site</button>
+            </div>
+            <div id="admin-albums"></div>
+            <div id="admin-kits"></div>
+            <div id="admin-settings"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN FORM MODAL -->
+    <div id="admin-form" class="fixed inset-0 z-[100001] modal-back hidden-tab flex items-center justify-center p-4" onclick="if(event.target===this) closeAdminForm()">
+        <div class="bg-black border-2 border-white w-full max-w-lg max-h-[90vh] overflow-y-auto font-mono">
+            <div class="flex justify-between items-center p-5 border-b border-white/20 sticky top-0 bg-black">
+                <h3 id="admin-form-title" class="text-white uppercase tracking-widest text-sm">Edit</h3>
+                <button onclick="closeAdminForm()" class="border border-white px-3 py-1 text-xs text-white hover:bg-white hover:text-black transition-colors">[ X ]</button>
+            </div>
+            <div id="admin-form-fields" class="p-5 flex flex-col gap-4"></div>
+            <div class="p-5 border-t border-white/20 flex justify-end gap-2 sticky bottom-0 bg-black">
+                <button onclick="closeAdminForm()" class="border border-white/40 px-5 py-2 text-xs uppercase text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                <button id="admin-form-save" class="bg-white text-black font-bold px-6 py-2 text-xs uppercase hover:bg-zinc-300 transition-colors">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Player -->
+    <div id="global-player" class="fixed bottom-0 w-full bg-black border-t-2 border-white z-[10001] font-mono scanlines translate-y-full transition-transform duration-300">
+        <div id="player-seek" onclick="seekPlayer(event)" class="absolute -top-1.5 left-0 w-full h-3 flex items-center cursor-pointer group/seek" title="Seek">
+            <div class="w-full h-[2px] group-hover/seek:h-[4px] bg-zinc-800 transition-all">
+                <div id="player-progress" class="h-full bg-white transition-all duration-100 shadow-[0_0_10px_#fff] relative" style="width: 0%">
+                    <span class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-2.5 h-2.5 bg-white rounded-full opacity-0 group-hover/seek:opacity-100 transition-opacity"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 w-full sm:w-1/3">
+                <div id="player-disc" class="w-10 h-10 border border-white flex items-center justify-center shrink-0">
+                    <i data-lucide="disc" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="min-w-0">
+                    <div id="player-title" class="text-white font-bold uppercase tracking-widest truncate">Select Track</div>
+                    <div id="player-bpm" class="text-zinc-500 text-[10px] uppercase">-- BPM · SYNTH PREVIEW</div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-6 sm:gap-8 w-full sm:w-1/3">
+                <button onclick="prevTrack()" class="text-zinc-500 hover:text-white transition-colors"><i data-lucide="skip-back" class="w-5 h-5 fill-current"></i></button>
+                <button onclick="toggleGlobalPlay()" class="w-14 h-14 bg-white text-black flex items-center justify-center hover:bg-zinc-300 transition-colors shrink-0">
+                    <i id="player-play-icon" data-lucide="play" class="w-6 h-6 fill-current ml-1"></i>
+                </button>
+                <button onclick="nextTrack()" class="text-zinc-500 hover:text-white transition-colors"><i data-lucide="skip-forward" class="w-5 h-5 fill-current"></i></button>
+            </div>
+
+            <div class="hidden sm:flex items-center justify-end gap-4 w-1/3 text-white">
+                <button onclick="toggleMute()" id="mute-btn"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+                <input id="volume" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)"
+                    class="w-24 accent-white cursor-pointer"/>
+                <button onclick="openLicenseForCurrent()" class="ml-2 font-mono text-xs uppercase border border-white px-3 py-1 glitch-hover whitespace-nowrap">Buy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Published catalog. Generated by the admin "Save for website" button.
+         Optional: if the file is absent the built-in default catalog is used. -->
+    <script src="data.js" onerror="void 0"></script>
+
+    <script>
+        lucide.createIcons();
+
+        /* ============ DEFAULT DATA (used on first run / after reset) ============ */
+        const DEFAULT_DATA = {
+            tgLink: "https://t.me/EmerBeatsBot",
+            adminPin: "1234",
+            albums: [
+                { id:'a1', title:'NIGHT MASS',   year:2026, tag:'Vol. I',   cover:'Без названия (45).jpg', beats:[
+                    { id:1, title:'VAMP ANTHEM',     bpm:144, key:'C# Min', price:30.00, tags:['RAGE','OPIUM'],       audio:'1-Intro.mp3' },
+                    { id:3, title:'NOSFERATU',       bpm:155, key:'D Min',  price:35.00, tags:['SYNTH','CHAOS'],       audio:'' },
+                    { id:5, title:'HELLRAISER',      bpm:140, key:'E Min',  price:30.00, tags:['INDUSTRIAL','RAGE'],   audio:'' }
+                ]},
+                { id:'a2', title:'BLOOD RITUAL', year:2025, tag:'Vol. II',  cover:'Без названия (46).jpg', beats:[
+                    { id:2, title:'BLOOD SACRIFICE', bpm:138, key:'F Min',  price:25.00, tags:['DISTORTED','DARK'],    audio:'' },
+                    { id:4, title:'GOTHIC',          bpm:120, key:'A Min',  price:20.00, tags:['GRUNGE','HEAVY'],      audio:'' },
+                    { id:6, title:'CRIMSON MOON',    bpm:132, key:'G Min',  price:28.00, tags:['DARK','TRAP'],         audio:'' }
+                ]},
+                { id:'a3', title:'OPIUM DREAMS', year:2026, tag:'Vol. III', cover:'OPIUM - 1.jpg', beats:[
+                    { id:7, title:'FADED HALO',      bpm:150, key:'B Min',  price:32.00, tags:['OPIUM','RAGE'],        audio:'' },
+                    { id:8, title:'VOID WALKER',     bpm:145, key:'C Min',  price:30.00, tags:['SYNTH','DARK'],        audio:'' }
+                ]}
+            ],
+            kits: [
+                { id: 101, title: "DISTORTION VOL.1",   desc: "Clipping 808s & Raw Textures",  price: 40.00, type: "Drum Kit", image: "Untitled-2.jpg",        ornament: "Без названия (10).webp", ornamentClass: "-top-6 -left-6 w-24", authors: "EmerBeats", contents: "KICK 50\nSNARE 59\nCLAPS 52\nHI HATS 40\nOPEN HATS 49\n808 30\nPERCS 60\nFX 45" },
+                { id: 103, title: "RARE GOODS MULTIKIT",desc: "Loops, MIDI & One Shots",        price: 60.00, type: "Bundle",   image: "OPIUM - 1.jpg",         ornament: "Без названия (14).webp", ornamentClass: "-top-8 -right-5 w-20 rotate-12", authors: "EmerBeats, KR2N", contents: "BASS 101\nKICK 50\nCLAPS 52\nSNARE 59\nHI HATS 40\nOPEN HATS 49\nCRASHES 24\nPERCS 106\nFX 178\nMEMES 37\nVOX 109\nLOOPS 25\nTEXTURE 39\nMIDI 46\nVOCAL PRESETS 37\nMUSICAL SCALES 24\nSYNTH PRESETS 42\nTEMPLATE 2\nTOOLBARS 4\nBACKGROUNDS 4" }
+            ],
+            licenses: [
+                { id:'mp3',       name:'MP3 LEASE',   mult:1,  tagline:'Tagless MP3',      terms:['Untagged MP3 file','Up to 50,000 streams','1 music video','2 radio stations'] },
+                { id:'wav',       name:'WAV LEASE',   add:15,  tagline:'WAV + MP3',        terms:['WAV + MP3 files','Up to 150,000 streams','1 music video','Distribute 5,000 copies'] },
+                { id:'stems',     name:'TRACKOUT',    add:45,  tagline:'Full Stems',       terms:['Track stems + WAV + MP3','Up to 500,000 streams','Unlimited radio','For mix engineers'] },
+                { id:'unlimited', name:'UNLIMITED',   add:90,  tagline:'Unlimited use',    terms:['Stems + WAV + MP3','Unlimited streams & sales','Unlimited radio','Non-exclusive'] },
+                { id:'exclusive', name:'EXCLUSIVE',   mult:10, tagline:'Own it fully',     terms:['Full ownership transfer','Beat pulled from store','Every file delivered','Unlimited everything'] }
+            ]
+        };
+
+        /* ============ DATA STORE (localStorage-backed) ============ */
+        const STORAGE_KEY = 'emerbeats_data';
+        function loadData(){
+            // 1) Your local working copy (edits made in the admin on this machine)
+            try {
+                const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (s && Array.isArray(s.albums)) return s;
+            } catch(e){}
+            // 2) Published catalog from data.js (this is what visitors see on the live site)
+            if (window.STORE_DATA && Array.isArray(window.STORE_DATA.albums)){
+                return JSON.parse(JSON.stringify(window.STORE_DATA));
+            }
+            // 3) Built-in default
+            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+        function saveData(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch(e){ alert('Не удалось сохранить (переполнена память браузера). Уменьши размер обложек.'); } }
+
+        let store   = loadData();
+        // Migrate the old placeholder Telegram link to the real bot
+        if (!store.tgLink || store.tgLink === 'https://t.me/emerbeats'){ store.tgLink = 'https://t.me/EmerBeatsBot'; saveData(); }
+        let albums  = store.albums;
+        let kits    = store.kits;
+        let LICENSES= store.licenses;
+        let TG_LINK = store.tgLink || "https://t.me/EmerBeatsBot";
+        let allBeats = albums.flatMap(a => a.beats);
+        let currentAlbum = null;
+
+        // Resolve a media reference to its folder.
+        //  - bare filename  "beat.mp3"      -> "beats/beat.mp3"  / "image/cover.jpg"
+        //  - embedded / URL / already-pathed -> left untouched
+        function mediaUrl(v, folder){
+            if (!v) return v;
+            if (/^(data:|https?:|blob:|\/\/|\/)/i.test(v)) return v;   // embedded or absolute URL
+            if (v.indexOf('/') !== -1) return v;                       // already has a path
+            return folder + '/' + v;
+        }
+
+        // Re-bind live references and repaint the whole storefront after an edit
+        function refreshStorefront(){
+            albums = store.albums; kits = store.kits; LICENSES = store.licenses;
+            TG_LINK = store.tgLink || "https://t.me/EmerBeatsBot";
+            allBeats = albums.flatMap(a => a.beats);
+            currentAlbum = null;
+            document.getElementById('album-detail-view').classList.add('hidden-tab');
+            document.getElementById('albums-view').classList.remove('hidden-tab');
+            document.getElementById('beats-subtitle').innerText = 'Albums';
+            renderTagFilters(); renderAlbums(); renderKits(); renderLicenseGrid();
+            document.querySelectorAll('.tg-link').forEach(a => a.href = TG_LINK);
+            lucide.createIcons();
+        }
+
+        function licensePrice(base, lic){ return lic.mult ? base*lic.mult : base + (lic.add||0); }
+
+        // Item codes for the Telegram flow. Custom `code` overrides the auto default.
+        function beatCode(b){ return (b.code && b.code.trim()) || ('BEAT-' + b.id); }
+        function kitCode(k){ return (k.code && k.code.trim()) || ('KIT-' + k.id); }
+
+        // Block 1 — everyday questions
+        const FAQ_GENERAL = [
+            { q:'How do I receive my files?', a:'Instantly. Right after checkout the download links (MP3 / WAV / stems, depending on your license) and your license contract are sent to your email automatically.' },
+            { q:'Can I preview a beat before buying?', a:'Yes — every beat has a free preview player on the site. Hit play to listen in full. The tag / preview quality is removed once you buy a lease and get your clean files.' },
+            { q:'Do you make custom beats?', a:'Absolutely. Hit me through the Contact section with a reference or a vibe and I will build something from scratch — mixing and mastering included on request.' },
+            { q:'Do you offer bundles or bulk deals?', a:'Yes. Message me on Telegram for multi-beat bundle pricing — the more you take, the better the deal.' },
+            { q:'What is your refund policy?', a:'Because beats are instantly-delivered digital goods, all sales are final. Reach out if anything is wrong with your files and I will fix it fast.' }
+        ];
+
+        // Block 2 — licensing rules & rights
+        const FAQ_LICENSE = [
+            { q:'How do beat licenses work? (read first)', a:'A license is your permission to use one of my beats under set rules. On any lease I keep the copyright and may sell the same beat to other artists — until someone buys the Exclusive, which pulls it from the store for good. Every license is 100% royalty-free: you keep all of your streaming and sales income. Two rules apply to every lease:<br><br>• Credit me in the title — for example: Song Name (prod. EmerBeats).<br>• Stay inside your tier limits (streams, videos, copies) and upgrade if you outgrow them.<br><br>A PDF contract is emailed to you at checkout — that document is the binding agreement, so keep it safe.' },
+            { q:'Which license should I choose?', a:'MP3 and WAV leases are perfect for releasing singles and building a buzz. Take a Trackout for full mixing control, Unlimited if you expect big numbers, or an Exclusive to own the beat outright — it is then removed from the store forever. Every tier and its price is listed in the Licensing block on the Instrumentals page.' },
+            { q:'MP3 Lease — what you get', a:'The starter option. Files: tagless MP3.<br><br>• 1 commercial song, monetized on all platforms<br>• Up to 50,000 total streams<br>• 1 music video<br>• Radio play on up to 2 stations<br>• Paid live performances<br><br>Non-exclusive — the beat stays for sale. Upgrade once you pass the stream cap.' },
+            { q:'WAV Lease — what you get', a:'Higher audio quality for mixing. Files: tagless WAV + MP3.<br><br>• Up to 150,000 streams<br>• 1 music video<br>• Sell or distribute up to 5,000 copies<br>• Radio on up to 2 stations<br>• Paid performances<br><br>Non-exclusive.' },
+            { q:'Trackout / Stems Lease — what you get', a:'Full mixing control. Files: separated track stems + WAV + MP3.<br><br>• Up to 500,000 streams<br>• Unlimited music videos<br>• Unlimited radio<br>• Sell up to 10,000 copies<br>• Paid performances<br><br>Non-exclusive. The best pick for a serious, properly mixed release.' },
+            { q:'Unlimited Lease — what you get', a:'Everything with no caps. Files: stems + WAV + MP3.<br><br>• Unlimited streams<br>• Unlimited sales and copies<br>• Unlimited music videos<br>• Unlimited radio<br>• Paid performances<br><br>Still non-exclusive (the beat can be sold to others), but you never worry about limits again.' },
+            { q:'Exclusive rights — what it means', a:'You buy the beat outright. It is removed from the store and never sold to anyone else. You receive every file (stems, WAV, MP3) with unlimited use on everything listed above, and you become the only artist allowed to commercially release it.<br><br>I keep authorship credit (prod. EmerBeats) and may show the beat in my portfolio, but the commercial rights are yours alone. Exclusive is a one-time sale — see the Exclusive price on each beat or message me directly.' },
+            { q:'Do I keep my profit / owe royalties?', a:'You keep 100% of your income and owe me no royalties. All leases and the Exclusive are royalty-free — just keep the credit (prod. EmerBeats) in the title.' },
+            { q:'What you may NOT do (all leases)', a:'On any non-exclusive lease you may NOT:<br><br>• Resell, share or give away the beat on its own — only inside your finished song<br>• Claim that you produced or created the beat<br>• Register the beat or its instrumental to Content ID, YouTube or any audio-fingerprint system — it would wrongly strike other artists using the same beat<br>• Transfer your license to another person<br>• Use it in hateful, illegal or defamatory content<br><br>Breaking any of these voids your license.' }
+        ];
+
+        function renderFAQGroup(list, containerId, group){
+            document.getElementById(containerId).innerHTML = list.map((f,i)=>`
+                <div class="border-b border-white/20 last:border-b-0">
+                    <button onclick="toggleFAQ('${group}',${i})" class="w-full flex items-center justify-between gap-4 text-left p-5 sm:p-6 font-mono uppercase text-white hover:bg-zinc-900 transition-colors">
+                        <span class="flex items-center gap-4 text-sm sm:text-base tracking-widest">
+                            <span class="text-zinc-600 text-xs">0${i+1}</span> ${f.q}
+                        </span>
+                        <i data-lucide="plus" id="faq-${group}-icon-${i}" class="w-5 h-5 shrink-0 transition-transform"></i>
+                    </button>
+                    <div id="faq-${group}-body-${i}" class="hidden-tab px-6 pb-6 sm:px-16 font-mono text-xs sm:text-sm text-zinc-400 leading-relaxed normal-case">
+                        ${f.a}
+                    </div>
+                </div>`).join('');
+        }
+        function renderFAQ(){
+            renderFAQGroup(FAQ_GENERAL, 'faq-general', 'gen');
+            renderFAQGroup(FAQ_LICENSE, 'faq-licensing', 'lic');
+            lucide.createIcons();
+        }
+        function toggleFAQ(group, i){
+            const body = document.getElementById(`faq-${group}-body-${i}`);
+            const icon = document.getElementById(`faq-${group}-icon-${i}`);
+            const open = body.classList.toggle('hidden-tab');
+            icon.setAttribute('data-lucide', open ? 'plus' : 'minus');
+            icon.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+            lucide.createIcons();
+        }
+
+        /* ============ STATE ============ */
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem('emerbeats_cart')) || []; } catch(e) { cart = []; }
+        let currentTrack = null;
+        let isPlaying = false;
+        let pendingBeat = null;      // beat awaiting license choice
+        let pendingLicense = null;
+
+        /* ============ WEB AUDIO SYNTH PREVIEW ============ */
+        // Generates a looping trap-style preview per beat (no audio files needed).
+        let audioCtx = null, busGain = null, shaper = null, masterGain = null;
+        let schedulerTimer = null, currentStep = 0, nextNoteTime = 0, playedSteps = 0;
+        const LOOP_STEPS = 32; // 2 bars for the progress bar
+        let muted = false, lastVolume = 0.7;
+
+        // Playback engine: 'synth' (default) or 'audio' (when a beat has a real mp3)
+        let engine = 'synth';
+        const audioEl = document.getElementById('audio-el');
+        audioEl.addEventListener('timeupdate', () => { if (engine==='audio') updateProgressUI(); });
+        audioEl.addEventListener('ended', () => { if (engine==='audio'){ isPlaying=false; updatePlayIcons(); renderAlbumBeats(); } });
+
+        const KEY_FREQ = {'C':32.70,'C#':34.65,'D':36.71,'D#':38.89,'E':41.20,'F':43.65,'F#':46.25,'G':49.00,'G#':51.91,'A':55.00,'A#':58.27,'B':61.74};
+        function rootFreq(keyStr){
+            const note = (keyStr||'A').split(' ')[0].toUpperCase();
+            return (KEY_FREQ[note] || 55) * 2; // bring up an octave for audible bass
+        }
+        function seeded(seed){ const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+        function makeDistortionCurve(amount){
+            const n = 44100, curve = new Float32Array(n), deg = Math.PI/180;
+            for (let i=0;i<n;i++){ const x = i*2/n - 1; curve[i] = (3+amount)*x*20*deg / (Math.PI + amount*Math.abs(x)); }
+            return curve;
+        }
+
+        function initAudio(){
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = muted ? 0 : lastVolume;
+            shaper = audioCtx.createWaveShaper();
+            shaper.curve = makeDistortionCurve(6);
+            busGain = audioCtx.createGain();
+            busGain.gain.value = 0.6;
+            busGain.connect(shaper).connect(masterGain).connect(audioCtx.destination);
+        }
+
+        function kick(t){
+            const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+            o.frequency.setValueAtTime(160,t); o.frequency.exponentialRampToValueAtTime(42,t+0.14);
+            g.gain.setValueAtTime(1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.32);
+            o.connect(g).connect(busGain); o.start(t); o.stop(t+0.34);
+        }
+        function hat(t, open){
+            const dur = open?0.28:0.045, n=audioCtx.sampleRate*dur;
+            const b=audioCtx.createBuffer(1,n,audioCtx.sampleRate), d=b.getChannelData(0);
+            for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+            const s=audioCtx.createBufferSource(); s.buffer=b;
+            const hp=audioCtx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=7500;
+            const g=audioCtx.createGain(); g.gain.setValueAtTime(0.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+            s.connect(hp).connect(g).connect(busGain); s.start(t); s.stop(t+dur);
+        }
+        function snare(t){
+            const n=audioCtx.sampleRate*0.2, b=audioCtx.createBuffer(1,n,audioCtx.sampleRate), d=b.getChannelData(0);
+            for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+            const s=audioCtx.createBufferSource(); s.buffer=b;
+            const bp=audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1900; bp.Q.value=0.7;
+            const g=audioCtx.createGain(); g.gain.setValueAtTime(0.5,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+            s.connect(bp).connect(g).connect(busGain); s.start(t); s.stop(t+0.2);
+        }
+        function bass(t, freq, dur){
+            const o=audioCtx.createOscillator(); o.type='sawtooth'; o.frequency.value=freq;
+            const lp=audioCtx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.setValueAtTime(600,t); lp.frequency.exponentialRampToValueAtTime(180,t+dur);
+            const g=audioCtx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.5,t+0.02); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+            o.connect(lp).connect(g).connect(busGain); o.start(t); o.stop(t+dur);
+        }
+        function lead(t, freq, dur){
+            const o=audioCtx.createOscillator(); o.type='square'; o.frequency.value=freq;
+            const g=audioCtx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+            o.connect(g).connect(busGain); o.start(t); o.stop(t+dur);
+        }
+
+        function scheduleStep(step, time){
+            if(!currentTrack) return;
+            const id = currentTrack.id, root = rootFreq(currentTrack.key);
+            const bar = Math.floor(playedSteps / 16) % 2;
+            // Kick pattern (16th grid within a bar)
+            const kicks = [0,3,7,8,11]; // syncopated trap kick
+            if (kicks.includes(step % 16) || (step%16===14 && seeded(id+bar)>0.5)) kick(time);
+            // Snare / clap on the backbeat
+            if (step % 16 === 4 || step % 16 === 12) snare(time);
+            // Hi-hats: every step, with rolls seeded per track
+            const roll = seeded(id*7 + step) > (0.78 - id*0.02);
+            hat(time, step % 8 === 6);
+            if (roll){ hat(time + (60/currentTrack.bpm)/8, false); }
+            // Bass line — root / minor third / fifth
+            const minorScale = [1, 1.1892, 1.4983]; // root, m3, 5th ratios
+            if (step % 16 === 0) bass(time, root, 0.5);
+            if (step % 16 === 6) bass(time, root * (bar? 1.4983 : 1.1892), 0.4);
+            if (step % 16 === 10) bass(time, root * 1.4983, 0.35);
+            // Sparse lead stabs for eerie top
+            if (step % 8 === 0 && seeded(id + step) > 0.5) lead(time, root * 4 * minorScale[step%3], 0.25);
+        }
+
+        function scheduler(){
+            const secPerStep = (60 / currentTrack.bpm) / 4;
+            while (nextNoteTime < audioCtx.currentTime + 0.12){
+                scheduleStep(currentStep, nextNoteTime);
+                playedSteps++;
+                updateProgressUI();
+                nextNoteTime += secPerStep;
+                currentStep = (currentStep + 1) % 16;
+            }
+            schedulerTimer = setTimeout(scheduler, 25);
+        }
+
+        function startEngine(){
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            nextNoteTime = audioCtx.currentTime + 0.05;
+            clearTimeout(schedulerTimer);
+            scheduler();
+        }
+        function stopEngine(){ clearTimeout(schedulerTimer); }
+
+        function updateProgressUI(){
+            const frac = (engine==='audio' && audioEl.duration)
+                ? (audioEl.currentTime / audioEl.duration)
+                : (playedSteps % LOOP_STEPS) / LOOP_STEPS;
+            document.getElementById('player-progress').style.width = (frac*100) + '%';
+            if (engine==='audio' && 'mediaSession' in navigator && audioEl.duration && isFinite(audioEl.duration)){
+                try { navigator.mediaSession.setPositionState({ duration: audioEl.duration, position: audioEl.currentTime, playbackRate: audioEl.playbackRate || 1 }); } catch(e){}
+            }
+            if (currentTrack){
+                const wf = document.querySelector(`#wf-${currentTrack.id}`);
+                if (wf){
+                    const bars = wf.querySelectorAll('.wf-bar');
+                    const upTo = Math.floor(frac * bars.length);
+                    bars.forEach((b,i)=> b.classList.toggle('played', i <= upTo));
+                }
+            }
+        }
+
+        /* ============ RENDER: BEATS ============ */
+        function waveformBars(id){
+            let s = '';
+            for (let i=0;i<48;i++){ const h = 15 + Math.floor(seeded(id*100 + i)*85); s += `<span class="wf-bar" style="height:${h}%"></span>`; }
+            return s;
+        }
+
+        function activeTags(){
+            return Array.from(document.querySelectorAll('#tag-filters .tag-active')).map(el=>el.dataset.tag);
+        }
+
+        function renderTagFilters(){
+            const all = [...new Set(allBeats.flatMap(b=>b.tags))].sort();
+            const c = document.getElementById('tag-filters');
+            c.innerHTML = all.map(t=>`<button data-tag="${t}" onclick="toggleTag(this)" class="px-3 py-1 border border-zinc-700 text-zinc-500 hover:border-white hover:text-white transition-colors tracking-widest">${t}</button>`).join('');
+        }
+        function toggleTag(btn){
+            btn.classList.toggle('tag-active');
+            btn.classList.toggle('bg-white'); btn.classList.toggle('text-black'); btn.classList.toggle('border-white');
+            renderAlbums();
+        }
+
+        // Does an album match the current search + tag filters?
+        function albumMatches(album, q, tags){
+            const matchQ = !q || album.title.toLowerCase().includes(q) ||
+                album.beats.some(b=>`${b.title} ${b.bpm} ${b.key} ${b.tags.join(' ')}`.toLowerCase().includes(q));
+            const matchT = !tags.length || album.beats.some(b=>tags.every(t=>b.tags.includes(t)));
+            return matchQ && matchT;
+        }
+
+        /* ============ RENDER: ALBUM CARDS ============ */
+        function renderAlbums(){
+            const q = (document.getElementById('beat-search').value||'').trim().toLowerCase();
+            const tags = activeTags();
+            const list = albums.filter(a=>albumMatches(a, q, tags));
+
+            const c = document.getElementById('albums-container');
+            document.getElementById('albums-empty').classList.toggle('hidden-tab', list.length>0);
+            const anim = (!q && !tags.length);   // only animate entrance while browsing, not while searching
+            c.innerHTML = list.map((album,i)=>`
+                <button onclick="openAlbum('${album.id}')" style="animation-delay:${anim?i*70:0}ms" class="${anim?'card-in':''} premium-card group relative text-left border border-white/20 bg-black overflow-hidden">
+                    <div class="relative aspect-square overflow-hidden bg-zinc-900">
+                        <img src="${mediaUrl(album.cover,'image')}" alt="${album.title}" class="w-full h-full object-cover contrast-110 group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/600x600/111/555?text=EMER'"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                        <div class="absolute top-3 right-3 bg-white text-black font-mono text-[10px] font-bold px-2 py-1 uppercase">${album.tag}</div>
+                        <!-- play overlay -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="w-16 h-16 border-2 border-white bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                <i data-lucide="list-music" class="w-7 h-7 text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4 flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <h3 class="font-gothic text-3xl text-white leading-none truncate">${album.title}</h3>
+                            <p class="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mt-1">${album.beats.length} beats · ${album.year}</p>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-5 h-5 text-zinc-600 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0"></i>
+                    </div>
+                </button>`).join('');
+            lucide.createIcons();
+        }
+
+        function openAlbum(albumId){
+            currentAlbum = albums.find(a=>a.id===albumId);
+            if(!currentAlbum) return;
+            document.getElementById('album-cover').src = mediaUrl(currentAlbum.cover, 'image');
+            document.getElementById('album-title').innerText = currentAlbum.title;
+            document.getElementById('album-meta').innerText = `${currentAlbum.tag} · ${currentAlbum.beats.length} beats · ${currentAlbum.year}`;
+            document.getElementById('beats-subtitle').innerText = currentAlbum.title;
+            document.getElementById('albums-view').classList.add('hidden-tab');
+            document.getElementById('album-detail-view').classList.remove('hidden-tab');
+            renderAlbumBeats();
+            document.getElementById('tab-beats').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+
+        function closeAlbum(){
+            currentAlbum = null;
+            document.getElementById('album-detail-view').classList.add('hidden-tab');
+            document.getElementById('albums-view').classList.remove('hidden-tab');
+            document.getElementById('beats-subtitle').innerText = 'Albums';
+            document.getElementById('tab-beats').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+
+        /* ============ RENDER: BEAT ROWS (inside an album) ============ */
+        function renderAlbumBeats(){
+            if(!currentAlbum) return;
+            const container = document.getElementById('beats-container');
+            container.querySelectorAll('.beat-row').forEach(n=>n.remove());
+
+            currentAlbum.beats.forEach((beat, index) => {
+                const playing = currentTrack?.id === beat.id && isPlaying;
+                const html = `
+                <div id="beat-row-${beat.id}" class="beat-row flex flex-col lg:flex-row lg:items-center justify-between p-4 sm:p-6 border-b border-white/20 transition-all font-mono uppercase ${playing?'bg-white text-black':'hover:bg-zinc-900 text-white'} group">
+                    <div class="flex items-center gap-4 sm:gap-6 lg:w-2/5">
+                        <span class="text-xs w-6 shrink-0 ${playing?'text-black':'text-zinc-600 group-hover:text-white'} transition-colors">0${index + 1}</span>
+                        <button onclick='playTrack(${beat.id})' class="w-11 h-11 shrink-0 flex items-center justify-center border-2 ${playing?'border-black':'border-white'} transition-transform hover:scale-110">
+                            <i data-lucide="${playing?'pause':'play'}" class="w-5 h-5 fill-current ${playing?'':'ml-1'}"></i>
+                        </button>
+                        <div class="min-w-0">
+                            <span class="font-bold text-lg sm:text-2xl tracking-tight block truncate">${beat.title}</span>
+                            <div class="flex items-center gap-3 text-xs mt-1 ${playing?'text-zinc-700':'text-zinc-500 group-hover:text-zinc-400'}">
+                                <span>${beat.bpm} BPM</span><span>// ${beat.key}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="wf-${beat.id}" onclick="seekTrack(${beat.id}, event)" class="wf ${currentTrack?.id===beat.id?'is-active':''} ${playing?'on-light':''} hidden lg:flex flex-grow mx-6 opacity-70">
+                        ${waveformBars(beat.id)}
+                    </div>
+
+                    <div class="flex items-center justify-between lg:justify-end gap-4 sm:gap-6 mt-4 lg:mt-0 shrink-0">
+                        <div class="flex gap-2">
+                            ${beat.tags.map(tag=>`<span class="text-[10px] border ${playing?'border-black/30':'border-zinc-700'} px-2 py-1">${tag}</span>`).join('')}
+                        </div>
+                        <button onclick='openLicense(${beat.id})' class="px-5 sm:px-6 py-3 text-sm font-bold border border-white bg-white text-black glitch-hover whitespace-nowrap">
+                            $${(+beat.price).toFixed(2)} +
+                        </button>
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+            lucide.createIcons();
+            updateProgressUI();
+        }
+
+        /* ============ RENDER: KITS ============ */
+        function renderKits(){
+            const c = document.getElementById('kits-container');
+            c.innerHTML = kits.map((kit,i)=>{
+                const orn = kit.ornament ? `<img src="${mediaUrl(kit.ornament,'image')}" alt="ornament" class="sigil-ornament z-30 ${kit.ornamentClass}" onerror="this.style.display='none'" />` : '';
+                const authors = kit.authors ? `<p class="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mb-3">By <span class="text-white">${kit.authors}</span></p>` : '';
+                const itemCount = (kit.contents || '').split('\n').map(s=>s.trim()).filter(Boolean).length;
+                const isFree = !!kit.free;
+                const priceHtml = isFree
+                    ? `<span class="font-mono font-bold text-xl text-white tracking-widest">FREE</span>`
+                    : `<span class="font-mono font-bold text-xl">$${(+kit.price).toFixed(2)}</span>`;
+                const actionHtml = isFree
+                    ? `<button onclick="downloadFree(${kit.id}, event)" class="font-mono text-xs uppercase border border-white px-4 py-2 glitch-hover flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download</button>`
+                    : `<button onclick="event.stopPropagation(); addKitToCart(${kit.id})" class="font-mono text-xs uppercase border border-white px-4 py-2 glitch-hover">Acquire</button>`;
+                const freeBadge = isFree ? `<div class="absolute top-4 left-4 bg-white text-black font-mono text-[10px] font-bold px-2 py-1 uppercase tracking-widest">Free</div>` : '';
+                return `
+                <div onclick="openKitModal(${kit.id})" style="animation-delay:${i*80}ms" class="card-in premium-card group relative flex flex-col border border-white/20 bg-black cursor-pointer">
+                    ${orn}
+                    <div class="relative aspect-square overflow-hidden border-b border-white/20 bg-zinc-900">
+                        <img src="${mediaUrl(kit.image,'image')}" alt="${kit.title}" class="w-full h-full object-cover contrast-110 group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/800x800/222/555?text=NO+IMAGE'"/>
+                        ${freeBadge}
+                        <div class="absolute top-4 right-4 bg-white text-black font-mono text-[10px] font-bold px-2 py-1 uppercase">${kit.type}</div>
+                        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-white flex items-center gap-2"><i data-lucide="scan-search" class="w-4 h-4"></i> View details${itemCount?` · ${itemCount} folders`:''}</span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow relative z-10 bg-black">
+                        <h3 class="font-gothic text-3xl text-white mb-1">${kit.title}</h3>
+                        ${authors}
+                        <p class="font-mono text-zinc-500 text-xs uppercase mb-4 flex-grow">${kit.desc}</p>
+                        <div class="flex items-center justify-between mt-auto pt-2">
+                            ${priceHtml}
+                            ${actionHtml}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+        function openKitModal(id){
+            const kit = kits.find(k=>k.id===id); if(!kit) return;
+            const items = (kit.contents || '').split('\n').map(s=>s.trim()).filter(Boolean);
+            const inside = items.length ? `
+                <div class="mt-6">
+                    <p class="font-mono text-[10px] uppercase tracking-widest text-white mb-3 border-b border-white/20 pb-2">Inside · ${items.length} folders</p>
+                    <ul class="grid grid-cols-2 gap-x-6 gap-y-1 font-mono text-[11px] uppercase text-zinc-400">
+                        ${items.map(it=>`<li class="flex gap-2 py-0.5"><span class="text-white">•</span>${it}</li>`).join('')}
+                    </ul>
+                </div>` : '';
+            const authors = kit.authors ? `<p class="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mb-4">By <span class="text-white">${kit.authors}</span></p>` : '';
+            const isFree = !!kit.free;
+            const mPrice = isFree ? `<span class="font-mono font-bold text-2xl text-white tracking-widest">FREE</span>` : `<span class="font-mono font-bold text-2xl text-white">$${(+kit.price).toFixed(2)}</span>`;
+            const mAction = isFree
+                ? `<button onclick="downloadFree(${kit.id}, event)" class="font-mono text-sm uppercase bg-white text-black font-bold px-6 py-3 hover:bg-zinc-300 transition-colors flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download free</button>`
+                : `<button onclick="addKitToCart(${kit.id}); closeKitModal()" class="font-mono text-sm uppercase bg-white text-black font-bold px-6 py-3 hover:bg-zinc-300 transition-colors">Acquire</button>`;
+            document.getElementById('kit-modal-body').innerHTML = `
+                <div class="grid md:grid-cols-2 max-h-[90vh]">
+                    <div class="relative aspect-square md:aspect-auto bg-zinc-900 border-b md:border-b-0 md:border-r border-white/20 shrink-0">
+                        <img src="${mediaUrl(kit.image,'image')}" alt="${kit.title}" class="w-full h-full object-cover contrast-110" onerror="this.src='https://placehold.co/800x800/222/555?text=NO+IMAGE'"/>
+                        <div class="absolute top-4 right-4 bg-white text-black font-mono text-[10px] font-bold px-2 py-1 uppercase">${kit.type}</div>
+                    </div>
+                    <div class="p-6 md:p-8 overflow-y-auto max-h-[90vh]">
+                        <button onclick="closeKitModal()" class="float-right font-mono text-white border border-white px-3 py-1 text-xs hover:bg-white hover:text-black transition-colors">[ X ]</button>
+                        <h3 class="font-gothic text-4xl text-white mb-1 pr-12">${kit.title}</h3>
+                        ${authors}
+                        <p class="font-mono text-zinc-400 text-xs uppercase leading-relaxed">${kit.desc}</p>
+                        ${inside}
+                        <div class="flex items-center justify-between mt-8 border-t border-white/20 pt-6">
+                            ${mPrice}
+                            ${mAction}
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('kit-modal').classList.remove('hidden-tab');
+            lucide.createIcons();
+        }
+        function closeKitModal(){ document.getElementById('kit-modal').classList.add('hidden-tab'); }
+        function downloadFree(id, e){
+            if (e) e.stopPropagation();
+            const k = kits.find(x=>x.id===id);
+            if (k && k.freeUrl){ window.open(k.freeUrl, '_blank', 'noopener'); }
+            else { showToast('Download link not set'); }
+        }
+
+        /* ============ RENDER: LICENSE INFO GRID ============ */
+        function renderLicenseGrid(){
+            const base = 30;
+            document.getElementById('license-grid').innerHTML = LICENSES.map((l,i)=>`
+                <div style="animation-delay:${i*60}ms" class="card-in premium-card border border-white/20 p-4 flex flex-col ${l.id==='exclusive'?'lg:col-span-1 border-white':''} bg-zinc-950">
+                    <div class="flex items-baseline justify-between mb-3">
+                        <h3 class="text-white text-sm font-bold uppercase tracking-widest">${l.name}</h3>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 uppercase mb-4">${l.tagline}</p>
+                    <ul class="text-[10px] text-zinc-400 uppercase space-y-1 flex-grow">
+                        ${l.terms.map(t=>`<li class="flex gap-2"><span class="text-white">✝</span>${t}</li>`).join('')}
+                    </ul>
+                    <p class="text-white font-bold mt-4 text-xs uppercase">from $${licensePrice(base,l).toFixed(2)}</p>
+                </div>`).join('');
+        }
+
+        /* ============ TABS / NAV ============ */
+        const TABS = ['beats','kits','faq'];
+        function switchTab(tab){
+            TABS.forEach(t=>{
+                document.getElementById(`tab-${t}`).classList.add('hidden-tab');
+                const b = document.getElementById(`btn-${t}`);
+                if (b) b.className = 'text-zinc-500 hover:text-white transition-all';
+            });
+            const shown = document.getElementById(`tab-${tab}`);
+            shown.classList.remove('hidden-tab');
+            const active = document.getElementById(`btn-${tab}`);
+            if (active) active.className = 'text-white border-b border-white transition-all';
+            if (typeof revealIn === 'function') revealIn(shown);   // fade in the tab's blocks
+            // Jump straight to the content that changed, not the hero
+            shown.scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+        function toggleMobileMenu(){ document.getElementById('mobile-menu').classList.toggle('hidden-tab'); }
+
+        /* ============ PLAYER ============ */
+        function visibleBeatIds(){ return Array.from(document.querySelectorAll('.beat-row')).map(r=>+r.id.replace('beat-row-','')); }
+
+        function playTrack(id){
+            const track = allBeats.find(b=>b.id===id);
+            if(!track) return;
+            document.getElementById('global-player').classList.remove('translate-y-full');
+
+            if (currentTrack?.id === id){ toggleGlobalPlay(); return; }
+
+            // stop whatever is currently playing
+            stopEngine();
+            audioEl.pause();
+
+            currentTrack = track;
+            isPlaying = true;
+            playedSteps = 0; currentStep = 0;
+            document.getElementById('player-title').innerText = track.title;
+
+            if ('mediaSession' in navigator){
+                try { navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: 'EmerBeats', album: (currentAlbum && currentAlbum.title) || 'EmerBeats' }); } catch(e){}
+                navigator.mediaSession.playbackState = 'playing';
+            }
+
+            if (track.audio){
+                // Real mp3 preview
+                engine = 'audio';
+                audioEl.src = mediaUrl(track.audio, 'beats');
+                audioEl.volume = muted ? 0 : lastVolume;
+                audioEl.currentTime = 0;
+                audioEl.play().catch(()=>{});
+                document.getElementById('player-bpm').innerText = `${track.bpm} BPM · ${track.key}`;
+            } else {
+                // Synth preview
+                engine = 'synth';
+                initAudio();
+                startEngine();
+                document.getElementById('player-bpm').innerText = `${track.bpm} BPM · ${track.key} · SYNTH PREVIEW`;
+            }
+            updatePlayIcons();
+            renderAlbumBeats();
+        }
+        function toggleGlobalPlay(){
+            if(!currentTrack){ return; }
+            isPlaying = !isPlaying;
+            if (engine === 'audio'){
+                if (isPlaying) audioEl.play().catch(()=>{}); else audioEl.pause();
+            } else {
+                initAudio();
+                if (isPlaying){ audioCtx.resume(); startEngine(); }
+                else stopEngine();
+            }
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+            updatePlayIcons();
+            renderAlbumBeats();
+        }
+        function nextTrack(){
+            const ids = visibleBeatIds(); if(!ids.length) return;
+            const i = currentTrack ? ids.indexOf(currentTrack.id) : -1;
+            playTrack(ids[(i+1) % ids.length]);
+        }
+        function prevTrack(){
+            const ids = visibleBeatIds(); if(!ids.length) return;
+            const i = currentTrack ? ids.indexOf(currentTrack.id) : 0;
+            playTrack(ids[(i-1+ids.length) % ids.length]);
+        }
+        function seekTrack(id, e){
+            if (currentTrack?.id !== id) { playTrack(id); return; }
+            const wf = document.getElementById(`wf-${id}`);
+            const rect = wf.getBoundingClientRect();
+            const frac = Math.min(0.999, Math.max(0, (e.clientX - rect.left)/rect.width));
+            if (engine === 'audio' && audioEl.duration){ audioEl.currentTime = frac * audioEl.duration; }
+            else { playedSteps = Math.floor(frac * LOOP_STEPS); }
+            updateProgressUI();
+        }
+        // Seek from the bottom player bar
+        function seekPlayer(e){
+            if(!currentTrack) return;
+            const bar = document.getElementById('player-seek');
+            const rect = bar.getBoundingClientRect();
+            const frac = Math.min(0.999, Math.max(0, (e.clientX - rect.left)/rect.width));
+            if (engine === 'audio' && audioEl.duration){ audioEl.currentTime = frac * audioEl.duration; }
+            else { playedSteps = Math.floor(frac * LOOP_STEPS); }
+            updateProgressUI();
+        }
+        // Wire the OS media controls (play/pause/next/prev/seek) to the player
+        function setupMediaSession(){
+            if(!('mediaSession' in navigator)) return;
+            const h = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, fn); } catch(e){} };
+            h('play',  ()=>{ if(!isPlaying) toggleGlobalPlay(); });
+            h('pause', ()=>{ if(isPlaying) toggleGlobalPlay(); });
+            h('previoustrack', prevTrack);
+            h('nexttrack', nextTrack);
+            h('seekto', (d)=>{ if(engine==='audio' && audioEl.duration && d.seekTime!=null){ audioEl.currentTime = d.seekTime; updateProgressUI(); } });
+            h('seekbackward', (d)=>{ if(engine==='audio') audioEl.currentTime = Math.max(0, audioEl.currentTime - (d.seekOffset||10)); });
+            h('seekforward',  (d)=>{ if(engine==='audio') audioEl.currentTime = Math.min(audioEl.duration||0, audioEl.currentTime + (d.seekOffset||10)); });
+        }
+        function updatePlayIcons(){
+            const c = document.getElementById('player-play-icon').parentNode;
+            c.innerHTML = isPlaying
+                ? '<i id="player-play-icon" data-lucide="pause" class="w-6 h-6 fill-current"></i>'
+                : '<i id="player-play-icon" data-lucide="play" class="w-6 h-6 fill-current ml-1"></i>';
+            const disc = document.getElementById('player-disc');
+            disc.style.animation = isPlaying ? 'spin 3s linear infinite' : 'none';
+            lucide.createIcons();
+        }
+        function setVolume(v){
+            lastVolume = v/100; muted = false;
+            if (masterGain) masterGain.gain.value = lastVolume;
+            audioEl.volume = lastVolume;
+            document.getElementById('mute-btn').innerHTML = `<i data-lucide="${lastVolume==0?'volume-x':'volume-2'}" class="w-4 h-4"></i>`;
+            lucide.createIcons();
+        }
+        function toggleMute(){
+            muted = !muted;
+            if (masterGain) masterGain.gain.value = muted ? 0 : lastVolume;
+            audioEl.volume = muted ? 0 : lastVolume;
+            document.getElementById('mute-btn').innerHTML = `<i data-lucide="${muted?'volume-x':'volume-2'}" class="w-4 h-4"></i>`;
+            lucide.createIcons();
+        }
+
+        /* ============ LICENSE MODAL ============ */
+        function openLicense(beatId){
+            pendingBeat = allBeats.find(b=>b.id===beatId);
+            pendingLicense = null;
+            document.getElementById('lic-modal-title').innerText = pendingBeat.title;
+            document.getElementById('lic-modal-meta').innerText = `${pendingBeat.bpm} BPM · ${pendingBeat.key} · ${pendingBeat.tags.join(' / ')}`;
+            document.getElementById('lic-options').innerHTML = LICENSES.map(l=>`
+                <button class="lic-card text-left border border-white/30 p-4 flex flex-col bg-black" data-lic="${l.id}" onclick="selectLicense('${l.id}')">
+                    <div class="flex justify-between items-baseline mb-2">
+                        <span class="text-sm font-bold uppercase tracking-widest">${l.name}</span>
+                        <span class="text-sm font-bold">$${licensePrice(pendingBeat.price,l).toFixed(2)}</span>
+                    </div>
+                    <span class="lic-mono text-[10px] text-zinc-500 uppercase mb-3">${l.tagline}</span>
+                    <ul class="lic-mono text-[10px] text-zinc-400 uppercase space-y-1">
+                        ${l.terms.map(t=>`<li>✝ ${t}</li>`).join('')}
+                    </ul>
+                </button>`).join('');
+            document.getElementById('lic-selected-name').innerText = '—';
+            document.getElementById('lic-price').innerText = '0.00';
+            document.getElementById('lic-add-btn').disabled = true;
+            document.getElementById('license-modal').classList.remove('hidden-tab');
+        }
+        function selectLicense(licId){
+            pendingLicense = LICENSES.find(l=>l.id===licId);
+            document.querySelectorAll('.lic-card').forEach(c=>c.classList.toggle('sel', c.dataset.lic===licId));
+            document.getElementById('lic-selected-name').innerText = pendingLicense.name;
+            document.getElementById('lic-price').innerText = licensePrice(pendingBeat.price, pendingLicense).toFixed(2);
+            document.getElementById('lic-add-btn').disabled = false;
+        }
+        function confirmLicense(){
+            if(!pendingBeat || !pendingLicense) return;
+            const key = `${pendingBeat.id}-${pendingLicense.id}`;
+            if (!cart.find(c=>c.key===key)){
+                cart.push({ key, id: pendingBeat.id, title: pendingBeat.title, sub: pendingLicense.name, price: licensePrice(pendingBeat.price, pendingLicense), code: beatCode(pendingBeat) });
+                saveCart(); updateCartUI(); showToast(`${pendingBeat.title} · ${pendingLicense.name} added`);
+            } else { showToast('Already in cart'); }
+            closeLicense();
+        }
+        function closeLicense(){ document.getElementById('license-modal').classList.add('hidden-tab'); }
+        function openLicenseForCurrent(){ if(currentTrack) openLicense(currentTrack.id); }
+
+        /* ============ CART ============ */
+        function addKitToCart(kitId){
+            const kit = kits.find(k=>k.id===kitId);
+            const key = `kit-${kit.id}`;
+            if (!cart.find(c=>c.key===key)){
+                cart.push({ key, id: kit.id, title: kit.title, sub: kit.type, price: kit.price, code: kitCode(kit) });
+                saveCart(); updateCartUI(); showToast(`${kit.title} added`);
+            } else showToast('Already in cart');
+        }
+        function removeFromCart(key){ cart = cart.filter(c=>c.key!==key); saveCart(); updateCartUI(); }
+        function saveCart(){ try{ localStorage.setItem('emerbeats_cart', JSON.stringify(cart)); }catch(e){} }
+
+        function updateCartUI(){
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((s,i)=>s+i.price,0).toFixed(2);
+            document.getElementById('cart-total').innerText = total;
+            const c = document.getElementById('cart-items');
+            if (!cart.length){ c.innerHTML = '<p class="text-zinc-600 text-xs uppercase text-center py-6">Cart is empty</p>'; return; }
+            c.innerHTML = cart.map(item=>`
+                <div class="flex justify-between items-start gap-2 text-xs uppercase border-b border-zinc-800 pb-2">
+                    <div class="min-w-0">
+                        <span class="text-white block truncate">${item.title}</span>
+                        <span class="text-zinc-500 text-[10px]">${item.sub} · <span class="text-zinc-400">${item.code||''}</span></span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-white">$${item.price.toFixed(2)}</span>
+                        <button onclick="removeFromCart('${item.key}')" class="text-zinc-600 hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    </div>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+        function toggleCart(){ document.getElementById('cart-overlay').classList.toggle('hidden-tab'); }
+
+        /* ============ CHECKOUT — copy order & open the Telegram bot ============ */
+        function buildOrderText(){
+            const lines = cart.map(i=>`• ${i.title} — ${i.sub} — ${i.code} — $${i.price.toFixed(2)}`);
+            const total = cart.reduce((s,i)=>s+i.price,0).toFixed(2);
+            return `EmerBeats order:\n${lines.join('\n')}\nTotal: $${total}`;
+        }
+        function checkoutBot(){
+            if(!cart.length){ showToast('Cart is empty'); return; }
+            document.getElementById('order-list').innerHTML = cart.map(i=>`
+                <div class="flex justify-between items-baseline gap-3 border-b border-white/10 py-2">
+                    <span class="text-zinc-300 truncate">${i.title} <span class="text-zinc-600">· ${i.sub}</span></span>
+                    <span class="shrink-0 flex items-center gap-3"><span class="text-white bg-white/10 px-2 py-0.5 tracking-widest">${i.code}</span><span class="text-white">$${i.price.toFixed(2)}</span></span>
+                </div>`).join('');
+            document.getElementById('order-total').innerText = cart.reduce((s,i)=>s+i.price,0).toFixed(2);
+            document.getElementById('order-text').value = buildOrderText();
+            document.getElementById('order-modal').classList.remove('hidden-tab');
+            lucide.createIcons();
+        }
+        function closeOrder(){ document.getElementById('order-modal').classList.add('hidden-tab'); }
+        function copyOrderText(){
+            const ta = document.getElementById('order-text');
+            try { ta.focus(); ta.select(); ta.setSelectionRange(0, 99999); } catch(e){}
+            copyToClipboard(ta.value);
+            showToast('Order copied — paste it to the bot');
+        }
+
+        /* ============ CLIPBOARD ============ */
+        function copyToClipboard(text){
+            try {
+                if (navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text); return; }
+            } catch(e){}
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+            } catch(e){}
+        }
+
+        /* ============ TOAST ============ */
+        let toastTimer;
+        function showToast(msg){
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.remove('hidden-tab');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(()=>t.classList.add('hidden-tab'), 2200);
+        }
+
+        /* ============ KEYBOARD ============ */
+        document.addEventListener('keydown', (e)=>{
+            if (e.key === 'Escape'){ closeLicense(); closeAdminForm(); closeKitModal(); closeOrder(); }
+            if (e.code === 'Space' && currentTrack && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){
+                e.preventDefault(); toggleGlobalPlay();
+            }
+        });
+
+        /* =====================================================================
+           ADMIN PANEL — add / edit / delete beats, albums, kits & prices.
+           Data persists in this browser (localStorage). Export a backup to
+           move it to another device or to publish on hosting.
+        ===================================================================== */
+        let adminAuthed = false;
+
+        // Admin is available ONLY when you run the file locally (your computer).
+        // On a published site (real domain) it is completely disabled.
+        function isLocalEnv(){
+            const h = location.hostname;
+            return location.protocol === 'file:' || h === 'localhost' || h === '127.0.0.1' || h === '' || h.endsWith('.local');
+        }
+
+        function openAdmin(){
+            if (!isLocalEnv()) return;   // dead on the public site
+            document.getElementById('admin-overlay').classList.remove('hidden-tab');
+            document.body.style.overflow = 'hidden';
+            if (adminAuthed){ showAdminBody(); }
+            else {
+                document.getElementById('admin-login').classList.remove('hidden-tab');
+                document.getElementById('admin-body').classList.add('hidden-tab');
+                setTimeout(()=>document.getElementById('admin-pin').focus(), 60);
+            }
+        }
+        function closeAdmin(){
+            document.getElementById('admin-overlay').classList.add('hidden-tab');
+            document.body.style.overflow = '';
+            if (location.hash === '#admin') history.replaceState(null,'',location.pathname + location.search);
+        }
+        function submitAdminPin(){
+            const pin = document.getElementById('admin-pin').value;
+            if (pin === (store.adminPin || '1234')){
+                adminAuthed = true;
+                document.getElementById('admin-pin').value = '';
+                document.getElementById('admin-pin-err').classList.add('hidden-tab');
+                showAdminBody();
+            } else {
+                document.getElementById('admin-pin-err').classList.remove('hidden-tab');
+            }
+        }
+        function showAdminBody(){
+            document.getElementById('admin-login').classList.add('hidden-tab');
+            document.getElementById('admin-body').classList.remove('hidden-tab');
+            renderAdmin();
+        }
+
+        // ---- helpers ----
+        function esc(v){ return (v==null?'':String(v)).replace(/"/g,'&quot;'); }
+        function fld(label, id, value, type='text', ph=''){
+            return `<label class="flex flex-col gap-1">
+                <span class="text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
+                <input id="${id}" type="${type}" value="${esc(value)}" placeholder="${ph}" class="bg-transparent border border-white/30 px-3 py-2 text-white text-sm outline-none focus:border-white"/>
+            </label>`;
+        }
+        function taField(label, id, value, rows=8, ph=''){
+            return `<label class="flex flex-col gap-1">
+                <span class="text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
+                <textarea id="${id}" rows="${rows}" placeholder="${ph}" class="bg-transparent border border-white/30 px-3 py-2 text-white text-sm outline-none focus:border-white font-mono leading-relaxed">${esc(value)}</textarea>
+            </label>`;
+        }
+        function chkField(label, id, checked, onchange=''){
+            return `<label class="flex items-center gap-3 cursor-pointer py-1 border border-white/20 px-3">
+                <input id="${id}" type="checkbox" ${checked?'checked':''} ${onchange?`onchange="${onchange}"`:''} class="w-4 h-4 accent-white"/>
+                <span class="text-[11px] uppercase tracking-widest text-zinc-300">${label}</span>
+            </label>`;
+        }
+        function imgField(label, id, value){
+            return `<label class="flex flex-col gap-1">
+                <span class="text-[10px] uppercase tracking-widest text-zinc-500">${label}</span>
+                <div class="flex gap-2 items-center">
+                    <img id="${id}-prev" src="${esc(mediaUrl(value,'image'))}" class="${value?'':'hidden-tab'} w-12 h-12 object-cover border border-white/20 shrink-0" onerror="this.classList.add('hidden-tab')"/>
+                    <input id="${id}" type="text" value="${esc(value)}" oninput="updateImgPreview('${id}', this.value)" placeholder="cover.jpg (из папки image/) или URL" class="bg-transparent border border-white/30 px-3 py-2 text-white text-sm outline-none focus:border-white flex-grow min-w-0"/>
+                    <label class="border border-white/40 px-3 py-2 text-[10px] uppercase text-zinc-300 hover:bg-white hover:text-black cursor-pointer flex items-center whitespace-nowrap transition-colors">Upload<input type="file" accept="image/*" class="hidden" onchange="uploadImageTo('${id}', this)"/></label>
+                </div>
+                <span class="text-[9px] uppercase text-zinc-600">Upload — картинка сожмётся и встроится автоматически. Или имя файла из папки image/</span>
+            </label>`;
+        }
+        function updateImgPreview(id, val){
+            const p = document.getElementById(id+'-prev'); if(!p) return;
+            if(val){ p.src = mediaUrl(val,'image'); p.classList.remove('hidden-tab'); } else p.classList.add('hidden-tab');
+        }
+        function toggleFreeUrl(){
+            const on = document.getElementById('kf-free')?.checked;
+            const wrap = document.getElementById('kf-freeurl-wrap');
+            if (wrap) wrap.style.display = on ? '' : 'none';
+        }
+        // Downscale + compress an uploaded image before embedding, so localStorage stays small
+        function uploadImageTo(inputId, fileInput){
+            const f = fileInput.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = e => {
+                const img = new Image();
+                img.onload = () => {
+                    const MAX = 700;
+                    let w = img.width, h = img.height;
+                    if (Math.max(w,h) > MAX){ const k = MAX/Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+                    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+                    let out; try { out = cv.toDataURL('image/jpeg', 0.82); } catch(err){ out = e.target.result; }
+                    const field = document.getElementById(inputId);
+                    if (field){ field.value = out; updateImgPreview(inputId, out); }
+                };
+                img.onerror = () => { const field = document.getElementById(inputId); if(field){ field.value = e.target.result; updateImgPreview(inputId, e.target.result); } };
+                img.src = e.target.result;
+            };
+            r.readAsDataURL(f);
+            fileInput.value = '';
+        }
+        function openAdminForm(title, fieldsHTML, onSave){
+            document.getElementById('admin-form-title').innerText = title;
+            document.getElementById('admin-form-fields').innerHTML = fieldsHTML;
+            const btn = document.getElementById('admin-form-save');
+            const nb = btn.cloneNode(true); btn.replaceWith(nb);   // drop old listeners
+            nb.addEventListener('click', onSave);
+            document.getElementById('admin-form').classList.remove('hidden-tab');
+            lucide.createIcons();
+        }
+        function closeAdminForm(){ document.getElementById('admin-form').classList.add('hidden-tab'); }
+
+        // ---- render admin ----
+        function renderAdmin(){ renderAdminAlbums(); renderAdminKits(); renderAdminSettings(); lucide.createIcons(); }
+
+        function renderAdminAlbums(){
+            document.getElementById('admin-albums').innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-white uppercase tracking-widest text-sm">Albums &amp; Beats</h3>
+                    <button onclick="editAlbum()" class="bg-white text-black px-4 py-2 text-xs uppercase font-bold hover:bg-zinc-300 transition-colors">+ Album</button>
+                </div>` +
+                store.albums.map(al=>`
+                <div class="border border-white/20 mb-6">
+                    <div class="flex items-center gap-3 p-3 bg-zinc-950 border-b border-white/10">
+                        <img src="${esc(mediaUrl(al.cover,'image'))}" onerror="this.src='https://placehold.co/80/111/555?text=%3F'" class="w-12 h-12 object-cover border border-white/20 shrink-0"/>
+                        <div class="flex-grow min-w-0">
+                            <div class="text-white uppercase text-sm truncate">${esc(al.title)}</div>
+                            <div class="text-zinc-500 text-[10px] uppercase">${esc(al.tag)} · ${esc(al.year)} · ${al.beats.length} beats</div>
+                        </div>
+                        <button onclick="editAlbum('${al.id}')" class="border border-white/40 px-3 py-1 text-[10px] uppercase text-zinc-300 hover:text-white transition-colors">Edit</button>
+                        <button onclick="delAlbum('${al.id}')" class="border border-red-500/50 px-3 py-1 text-[10px] uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors">Del</button>
+                    </div>
+                    <div>
+                        ${al.beats.map(b=>`
+                        <div class="flex items-center gap-3 p-3 text-xs border-b border-white/5">
+                            <span class="text-zinc-600 w-6 shrink-0">${b.id}</span>
+                            <span class="text-white flex-grow truncate uppercase">${esc(b.title)}</span>
+                            <span class="text-zinc-500 hidden sm:inline">${esc(b.bpm)} · ${esc(b.key)}</span>
+                            <span class="text-white w-16 text-right">$${(+b.price).toFixed(2)}</span>
+                            <button onclick="editBeat('${al.id}', ${b.id})" class="border border-white/40 px-2 py-1 text-[10px] uppercase text-zinc-300 hover:text-white transition-colors">Edit</button>
+                            <button onclick="delBeat('${al.id}', ${b.id})" class="border border-red-500/50 px-2 py-1 text-[10px] uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors">Del</button>
+                        </div>`).join('')}
+                    </div>
+                    <button onclick="editBeat('${al.id}')" class="w-full py-3 text-[10px] uppercase text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors">+ Add beat</button>
+                </div>`).join('');
+        }
+
+        function nextBeatId(){ const ids = store.albums.flatMap(a=>a.beats.map(b=>b.id)); return (ids.length? Math.max(...ids):0)+1; }
+
+        function editAlbum(id){
+            const al = id ? store.albums.find(a=>a.id===id) : { title:'', tag:'Vol.', year:new Date().getFullYear(), cover:'' };
+            const html = fld('Title','af-title',al.title) + fld('Label','af-tag',al.tag,'text','Vol. IV') +
+                         fld('Year','af-year',al.year,'number') + imgField('Cover image','af-cover',al.cover);
+            openAdminForm(id?'Edit album':'New album', html, ()=>{
+                const t = document.getElementById('af-title').value.trim();
+                if(!t){ alert('Введите название альбома'); return; }
+                const data = { title:t, tag:document.getElementById('af-tag').value.trim()||'Vol.',
+                    year:+document.getElementById('af-year').value||new Date().getFullYear(),
+                    cover:document.getElementById('af-cover').value.trim() };
+                if(id){ Object.assign(al, data); }
+                else { store.albums.push({ id:'a'+Date.now().toString(36), ...data, beats:[] }); }
+                saveData(); closeAdminForm(); renderAdmin(); refreshStorefront();
+            });
+        }
+        function delAlbum(id){
+            if(!confirm('Удалить альбом со всеми битами?')) return;
+            store.albums = store.albums.filter(a=>a.id!==id);
+            saveData(); renderAdmin(); refreshStorefront();
+        }
+
+        function editBeat(albumId, beatId){
+            const al = store.albums.find(a=>a.id===albumId); if(!al) return;
+            const b = (beatId!=null) ? al.beats.find(x=>x.id===beatId)
+                                     : { title:'', bpm:140, key:'A Min', price:30, tags:[], audio:'', code:'' };
+            const html = fld('Title','bf-title',b.title) + fld('BPM','bf-bpm',b.bpm,'number') +
+                fld('Key','bf-key',b.key,'text','C# Min') + fld('Price $','bf-price',b.price,'number') +
+                fld('Tags (через запятую)','bf-tags',(b.tags||[]).join(', '),'text','RAGE, OPIUM') +
+                fld('Код для бота (необязательно)','bf-code',b.code||'','text', beatId!=null?('по умолчанию '+beatCode(b)):'напр. BEAT-1') +
+                fld('Audio mp3 — имя файла из папки beats/ или ссылка','bf-audio',b.audio||'','text','vamp-anthem.mp3') +
+                `<p class="text-[10px] text-zinc-600 uppercase leading-relaxed">Положи mp3 в папку <span class="text-white">beats/</span> и впиши только имя файла (напр. beat.mp3). Либо вставь полную ссылку. Без mp3 играет синтезированное демо-превью.</p>`;
+            openAdminForm(beatId!=null?'Edit beat':'New beat', html, ()=>{
+                const t = document.getElementById('bf-title').value.trim();
+                if(!t){ alert('Введите название бита'); return; }
+                const data = {
+                    title:t, bpm:+document.getElementById('bf-bpm').value||140,
+                    key:document.getElementById('bf-key').value.trim()||'A Min',
+                    price:+document.getElementById('bf-price').value||0,
+                    tags:document.getElementById('bf-tags').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean),
+                    code:document.getElementById('bf-code').value.trim(),
+                    audio:document.getElementById('bf-audio').value.trim()
+                };
+                if(beatId!=null){ Object.assign(b, data); }
+                else { al.beats.push({ id:nextBeatId(), ...data }); }
+                saveData(); closeAdminForm(); renderAdmin(); refreshStorefront();
+            });
+        }
+        function delBeat(albumId, beatId){
+            const al = store.albums.find(a=>a.id===albumId); if(!al) return;
+            if(!confirm('Удалить бит?')) return;
+            al.beats = al.beats.filter(b=>b.id!==beatId);
+            saveData(); renderAdmin(); refreshStorefront();
+        }
+
+        function renderAdminKits(){
+            document.getElementById('admin-kits').innerHTML = `
+                <div class="flex items-center justify-between mb-4 mt-10">
+                    <h3 class="text-white uppercase tracking-widest text-sm">Drum Kits</h3>
+                    <button onclick="editKit()" class="bg-white text-black px-4 py-2 text-xs uppercase font-bold hover:bg-zinc-300 transition-colors">+ Kit</button>
+                </div>` +
+                store.kits.map(k=>`
+                <div class="flex items-center gap-3 p-3 border border-white/20 mb-2 text-xs">
+                    <img src="${esc(mediaUrl(k.image,'image'))}" onerror="this.src='https://placehold.co/80/111/555?text=%3F'" class="w-10 h-10 object-cover border border-white/20 shrink-0"/>
+                    <div class="flex-grow min-w-0"><div class="text-white uppercase truncate">${esc(k.title)}</div><div class="text-zinc-500 text-[10px] uppercase">${esc(k.type)}</div></div>
+                    <span class="text-white">${k.free?'FREE':'$'+(+k.price).toFixed(2)}</span>
+                    <button onclick="editKit(${k.id})" class="border border-white/40 px-2 py-1 text-[10px] uppercase text-zinc-300 hover:text-white transition-colors">Edit</button>
+                    <button onclick="delKit(${k.id})" class="border border-red-500/50 px-2 py-1 text-[10px] uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors">Del</button>
+                </div>`).join('');
+        }
+        function nextKitId(){ const ids = store.kits.map(k=>k.id); return (ids.length? Math.max(...ids):100)+1; }
+        function editKit(id){
+            const k = (id!=null) ? store.kits.find(x=>x.id===id)
+                                 : { title:'', desc:'', type:'Drum Kit', price:40, image:'', ornament:null, ornamentClass:'' };
+            const html = fld('Title','kf-title',k.title) + fld('Description (короткая)','kf-desc',k.desc) +
+                fld('Authors / авторы','kf-authors',k.authors||'','text','EmerBeats, KR2N') +
+                fld('Type','kf-type',k.type,'text','Drum Kit / Bundle') +
+                fld('Price $','kf-price',k.price,'number') +
+                chkField('Free kit — бесплатный (вместо цены)','kf-free',!!k.free,'toggleFreeUrl()') +
+                `<div id="kf-freeurl-wrap" style="${k.free?'':'display:none'}">` +
+                    fld('Ссылка на скачивание (Google Drive / ТГ-пост / любой URL)','kf-freeurl',k.freeUrl||'','text','https://drive.google.com/...') +
+                    `<p class="text-[10px] text-zinc-600 uppercase mt-1 leading-relaxed">Куда ведёт кнопка Download у бесплатного кита. Открывается в новой вкладке.</p>` +
+                `</div>` +
+                fld('Код для бота (необязательно)','kf-code',k.code||'','text', id!=null?('по умолчанию '+kitCode(k)):'напр. KIT-1') +
+                imgField('Cover image','kf-image',k.image) +
+                taField('INSIDE — содержимое, по одному пункту на строку','kf-contents',k.contents||'',8,'BASS 101\nKICK 50\nCLAPS 52') +
+                `<p class="text-[10px] text-zinc-600 uppercase leading-relaxed">Каждая строка = один пункт списка INSIDE (напр. «KICK 50»). Показывается на карточке кита в раскрывающемся списке.</p>`;
+            openAdminForm(id!=null?'Edit kit':'New kit', html, ()=>{
+                const t = document.getElementById('kf-title').value.trim();
+                if(!t){ alert('Введите название'); return; }
+                const data = { title:t, desc:document.getElementById('kf-desc').value.trim(),
+                    authors:document.getElementById('kf-authors').value.trim(),
+                    type:document.getElementById('kf-type').value.trim()||'Kit',
+                    price:+document.getElementById('kf-price').value||0,
+                    free:document.getElementById('kf-free').checked,
+                    freeUrl:document.getElementById('kf-freeurl').value.trim(),
+                    code:document.getElementById('kf-code').value.trim(),
+                    image:document.getElementById('kf-image').value.trim(),
+                    contents:document.getElementById('kf-contents').value.replace(/\r/g,'').trim() };
+                if(id!=null){ Object.assign(k, data); }
+                else { store.kits.push({ id:nextKitId(), ornament:null, ornamentClass:'', ...data }); }
+                saveData(); closeAdminForm(); renderAdmin(); refreshStorefront();
+            });
+        }
+        function delKit(id){
+            if(!confirm('Удалить кит?')) return;
+            store.kits = store.kits.filter(k=>k.id!==id);
+            saveData(); renderAdmin(); refreshStorefront();
+        }
+
+        function renderAdminSettings(){
+            document.getElementById('admin-settings').innerHTML = `
+                <h3 class="text-white uppercase tracking-widest text-sm mb-4 mt-10">Publish to website</h3>
+                <div class="border-2 border-white p-4 mb-8 bg-zinc-950">
+                    <p class="text-[11px] uppercase text-zinc-400 tracking-widest leading-relaxed mb-4">
+                        Правки сохраняются у тебя в браузере. Чтобы они появились на сайте — жми кнопку ниже, получишь файл <span class="text-white">data.js</span> и положи его в папку рядом с сайтом (замени старый). Всё, каталог на сайте обновлён.
+                    </p>
+                    <button onclick="exportSiteData()" class="bg-white text-black px-6 py-3 text-xs uppercase font-bold hover:bg-zinc-300 transition-colors flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Save data.js for website
+                    </button>
+                </div>
+
+                <h3 class="text-white uppercase tracking-widest text-sm mb-4 mt-10">Settings</h3>
+                <div class="border border-white/20 p-4 flex flex-col gap-4 mb-6">
+                    <label class="flex flex-col gap-1"><span class="text-[10px] uppercase tracking-widest text-zinc-500">Telegram link</span>
+                        <input id="set-tg" value="${esc(store.tgLink)}" class="bg-transparent border border-white/30 px-3 py-2 text-white text-sm outline-none focus:border-white"/></label>
+                    <label class="flex flex-col gap-1"><span class="text-[10px] uppercase tracking-widest text-zinc-500">Admin PIN</span>
+                        <input id="set-pin" value="${esc(store.adminPin||'1234')}" class="bg-transparent border border-white/30 px-3 py-2 text-white text-sm outline-none focus:border-white w-32"/></label>
+                    <button onclick="saveSettings()" class="bg-white text-black px-5 py-2 text-xs uppercase font-bold hover:bg-zinc-300 transition-colors self-start">Save settings</button>
+                </div>
+
+                <h4 class="text-zinc-400 uppercase tracking-widest text-[11px] mb-3">License prices (based on each beat's price)</h4>
+                <div class="border border-white/20 p-4 flex flex-col gap-3 mb-6">
+                    ${store.licenses.map((l,i)=>`
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="text-white uppercase w-28 shrink-0">${esc(l.name)}</span>
+                            <span class="text-zinc-500 text-[10px] w-24 shrink-0">${l.mult!=null?'× multiplier':'+ add $'}</span>
+                            <input id="lic-${i}" type="number" step="0.01" value="${l.mult!=null?l.mult:l.add}" class="bg-transparent border border-white/30 px-3 py-2 text-white w-28 outline-none focus:border-white"/>
+                        </div>`).join('')}
+                    <button onclick="saveLicenses()" class="bg-white text-black px-5 py-2 text-xs uppercase font-bold hover:bg-zinc-300 transition-colors self-start mt-2">Save prices</button>
+                </div>
+
+                <div class="border border-white/20 p-4 flex flex-wrap gap-2 mb-24 items-center">
+                    <button onclick="exportData()" class="border border-white px-4 py-2 text-xs uppercase text-white hover:bg-white hover:text-black transition-colors">↓ Export backup</button>
+                    <label class="border border-white px-4 py-2 text-xs uppercase text-white hover:bg-white hover:text-black transition-colors cursor-pointer">↑ Import backup<input type="file" accept="application/json,.json" class="hidden" onchange="importData(this)"/></label>
+                    <button onclick="resetData()" class="border border-red-500/60 px-4 py-2 text-xs uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors ml-auto">Reset to defaults</button>
+                </div>`;
+        }
+        function saveSettings(){
+            store.tgLink = document.getElementById('set-tg').value.trim() || 'https://t.me/EmerBeatsBot';
+            store.adminPin = document.getElementById('set-pin').value.trim() || '1234';
+            saveData(); refreshStorefront(); showToast('Settings saved');
+        }
+        function saveLicenses(){
+            store.licenses.forEach((l,i)=>{ const v=+document.getElementById('lic-'+i).value||0; if(l.mult!=null) l.mult=v; else l.add=v; });
+            saveData(); refreshStorefront(); showToast('Prices saved');
+        }
+        function exportData(){
+            const blob = new Blob([JSON.stringify(store,null,2)], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'emerbeats-data.json'; a.click();
+            setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+        }
+        // Publish: writes the catalog into data.js — drop it next to the site to update the live catalog
+        function exportSiteData(){
+            const js = "// EmerBeats catalog — generated by the admin panel. Keep this file next to emerbeats.html.\n"
+                     + "window.STORE_DATA = " + JSON.stringify(store, null, 2) + ";\n";
+            const blob = new Blob([js], {type:'application/javascript'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'data.js'; a.click();
+            setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+            showToast('data.js готов — положи его в папку сайта');
+        }
+        function importData(input){
+            const f = input.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = e => { try {
+                const d = JSON.parse(e.target.result);
+                if(!Array.isArray(d.albums)) throw 0;
+                store = d; saveData(); renderAdmin(); refreshStorefront(); showToast('Backup imported');
+            } catch(err){ alert('Неверный файл бэкапа'); } };
+            r.readAsText(f);
+            input.value = '';
+        }
+        function resetData(){
+            if(!confirm('Сбросить каталог к стандартному? Все твои изменения удалятся.')) return;
+            store = JSON.parse(JSON.stringify(DEFAULT_DATA));
+            saveData(); renderAdmin(); refreshStorefront(); showToast('Reset to defaults');
+        }
+
+        /* ============ INIT ============ */
+        // Apply the Telegram link to every .tg-link element
+        document.querySelectorAll('.tg-link').forEach(a => a.href = TG_LINK);
+
+        renderTagFilters();
+        renderAlbums();
+        renderKits();
+        renderFAQ();
+        renderLicenseGrid();
+        updateCartUI();
+        setupMediaSession();
+        lucide.createIcons();
+
+        // Admin is local-only: reveal the "Manage catalog" button just on your machine
+        if (isLocalEnv()){
+            document.getElementById('admin-trigger').classList.remove('hidden-tab');
+            if (location.hash === '#admin') openAdmin();
+            window.addEventListener('hashchange', ()=>{ if(location.hash === '#admin') openAdmin(); });
+        }
+
+        /* ============ CUSTOM CURSOR — gothic cross, inverted & tilted left ============ */
+        (function setCrossCursor(){
+            // Thin barbed gothic cross, centred on origin.
+            // scale(1 -1) flips it (inverted), rotate(-22) tilts it to the LEFT.
+            // Hotspot (13 6) sits on the leading tip so you click with the cross's end.
+            const path = "M0,-62 L12,-46 L5,-40 L5,-19 L26,-19 L34,-24 L44,-14 L34,-4 L26,-9 L5,-9 "
+                       + "L5,40 L12,46 L0,62 L-12,46 L-5,40 L-5,-9 L-26,-9 L-34,-4 L-44,-14 L-34,-24 "
+                       + "L-26,-19 L-5,-19 L-5,-40 L-12,-46 Z";
+            const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='46' viewBox='-70 -80 140 160'>"
+                + "<g transform='rotate(-22) scale(1 -1)' fill='#ffffff' stroke='#000000' stroke-width='3.5' stroke-linejoin='round'>"
+                + "<path d='" + path + "'/></g></svg>";
+            const cur = `url("data:image/svg+xml,${encodeURIComponent(svg)}") 13 6, auto`;
+            const st = document.createElement('style');
+            st.textContent = `* { cursor: ${cur} !important; } input, textarea, [contenteditable] { cursor: text !important; }`;
+            document.head.appendChild(st);
+        })();
+
+        /* ============ PARTICLES — drifting ash ============ */
+        (function particles(){
+            const c = document.getElementById('particles');
+            if (!c || !c.getContext) return;
+            const ctx = c.getContext('2d');
+            let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+            function mk(init){
+                return {
+                    x: Math.random() * w,
+                    y: init ? Math.random() * h : -10,
+                    r: (Math.random() * 1.6 + 0.4) * dpr,
+                    s: (Math.random() * 0.35 + 0.08) * dpr,
+                    drift: (Math.random() - 0.5) * 0.25 * dpr,
+                    a: Math.random() * 0.4 + 0.08,
+                    sway: Math.random() * Math.PI * 2
+                };
+            }
+            let ps = [];
+            function resize(){
+                const nw = Math.floor(innerWidth * dpr), nh = Math.floor(innerHeight * dpr);
+                if (nw === w && nh === h) return;
+                const wasEmpty = (w === 0);
+                w = c.width = nw; h = c.height = nh;
+                c.style.width = innerWidth + 'px'; c.style.height = innerHeight + 'px';
+                if (wasEmpty && w > 0){                       // first real size → seed
+                    const N = Math.max(30, Math.min(90, Math.floor(innerWidth / 16)));
+                    ps = Array.from({length: N}, () => mk(true));
+                }
+            }
+            resize(); window.addEventListener('resize', resize);
+            function tick(){
+                resize();                                     // auto-fit when pane becomes visible
+                ctx.clearRect(0, 0, w, h);
+                for (const p of ps){
+                    p.y += p.s; p.sway += 0.01; p.x += p.drift + Math.sin(p.sway) * 0.3 * dpr;
+                    if (p.y > h + 12){ Object.assign(p, mk(false)); p.x = Math.random() * w; }
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+                    ctx.fillStyle = `rgba(255,255,255,${p.a})`;
+                    ctx.fill();
+                }
+                requestAnimationFrame(tick);
+            }
+            tick();
+        })();
+
+        /* ============ CURSOR GLOW — soft white light follows the pointer ============ */
+        (function cursorGlow(){
+            const g = document.getElementById('cursor-glow');
+            if (!g) return;
+            let x = innerWidth/2, y = innerHeight/2, tx = x, ty = y, shown = false, raf = 0;
+            function loop(){
+                x += (tx - x) * 0.18; y += (ty - y) * 0.18;   // smooth trailing
+                g.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+                raf = requestAnimationFrame(loop);
+            }
+            window.addEventListener('mousemove', (e)=>{
+                tx = e.clientX; ty = e.clientY;
+                if (!shown){ shown = true; g.style.opacity = '1'; if(!raf) loop(); }
+            }, { passive: true });
+            window.addEventListener('mouseleave', ()=>{ g.style.opacity = '0'; });
+            window.addEventListener('mousedown', ()=>{ g.style.opacity = '0.55'; });
+            window.addEventListener('mouseup',   ()=>{ g.style.opacity = shown ? '1' : '0'; });
+        })();
+
+        /* ============ SCROLL REVEAL — fade blocks in as they enter view ============ */
+        function revealIn(root){ (root||document).querySelectorAll('.reveal').forEach(el=>el.classList.add('revealed')); }
+        (function initReveals(){
+            const els = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('revealed')); return; }
+            const io = new IntersectionObserver((entries)=>{
+                entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('revealed'); io.unobserve(en.target); } });
+            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+            els.forEach(e=>io.observe(e));
+        })();
+    </script>
+</body>
+</html>
