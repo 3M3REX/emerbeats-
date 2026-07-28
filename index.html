@@ -537,7 +537,7 @@
                 <button onclick="toggleMute()" id="mute-btn"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
                 <input id="volume" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)"
                     class="w-24 accent-white cursor-pointer"/>
-                <button onclick="openLicenseForCurrent()" class="ml-2 font-mono text-xs uppercase border border-white px-3 py-1 glitch-hover whitespace-nowrap">Buy</button>
+                <button id="player-buy" onclick="playerBuyAction()" class="ml-2 font-mono text-xs uppercase border border-white px-3 py-1 glitch-hover whitespace-nowrap">Buy</button>
             </div>
         </div>
     </div>
@@ -1127,6 +1127,7 @@
             isPlaying = true;
             playedSteps = 0; currentStep = 0;
             document.getElementById('player-title').innerText = track.title;
+            updatePlayerBuy();
 
             if ('mediaSession' in navigator){
                 try { navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: 'EmerBeats', album: (currentAlbum && currentAlbum.title) || 'EmerBeats' }); } catch(e){}
@@ -1270,6 +1271,17 @@
         }
         function closeLicense(){ document.getElementById('license-modal').classList.add('hidden-tab'); }
         function openLicenseForCurrent(){ if(currentTrack) openLicense(currentTrack.id); }
+        // Bottom-player buy button: license for paid, download for free
+        function playerBuyAction(){
+            if(!currentTrack) return;
+            if(currentTrack.free) downloadFreeBeat(currentTrack.id);
+            else openLicense(currentTrack.id);
+        }
+        function updatePlayerBuy(){
+            const btn = document.getElementById('player-buy');
+            if(!btn || !currentTrack) return;
+            btn.innerText = currentTrack.free ? 'Download' : 'Buy';
+        }
 
         /* ============ CART ============ */
         function addKitToCart(kitId){
