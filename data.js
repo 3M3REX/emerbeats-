@@ -39,7 +39,7 @@ window.STORE_DATA = {
           "title": "EmerBeats - ALICE",
           "bpm": 147,
           "key": "D Maj",
-          "price": 25,
+          "price": 20,
           "free": false,
           "freeUrl": "",
           "tags": [
@@ -114,7 +114,7 @@ window.STORE_DATA = {
     {
       "id": "wav",
       "name": "WAV LEASE",
-      "add": 15,
+      "add": 10,
       "tagline": "WAV + MP3",
       "terms": [
         "WAV + MP3 files",
@@ -126,7 +126,7 @@ window.STORE_DATA = {
     {
       "id": "stems",
       "name": "TRACKOUT",
-      "add": 45,
+      "add": 20,
       "tagline": "Full Stems",
       "terms": [
         "Track stems + WAV + MP3",
@@ -138,7 +138,7 @@ window.STORE_DATA = {
     {
       "id": "unlimited",
       "name": "UNLIMITED",
-      "add": 90,
+      "add": 40,
       "tagline": "Unlimited use",
       "terms": [
         "Stems + WAV + MP3",
@@ -150,7 +150,7 @@ window.STORE_DATA = {
     {
       "id": "exclusive",
       "name": "EXCLUSIVE",
-      "mult": 10,
+      "mult": 4,
       "tagline": "Own it fully",
       "terms": [
         "Full ownership transfer",
