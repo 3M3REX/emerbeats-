@@ -1091,7 +1091,9 @@
 
         /* ============ RENDER: LICENSE INFO GRID ============ */
         function renderLicenseGrid(){
-            const base = 30;
+            // "FROM $X" = cheapest paid beat's price, so it matches your real catalog
+            const paidPrices = allBeats.filter(b=>!b.free).map(b=>+b.price).filter(p=>p>0);
+            const base = paidPrices.length ? Math.min(...paidPrices) : 20;
             document.getElementById('license-grid').innerHTML = LICENSES.map((l,i)=>`
                 <div style="animation-delay:${i*60}ms" class="card-in premium-card border border-white/20 p-4 flex flex-col ${l.id==='exclusive'?'lg:col-span-1 border-white':''} bg-zinc-950">
                     <div class="flex items-baseline justify-between mb-3">
