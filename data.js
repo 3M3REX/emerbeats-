@@ -29,7 +29,7 @@ window.STORE_DATA = {
     },
     {
       "id": "ams6jdah9",
-      "title": "HOSHI",
+      "title": "Hoshi",
       "tag": "Vol. 1",
       "year": 2026,
       "cover": "1.jpg",
