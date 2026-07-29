@@ -575,10 +575,10 @@
             ],
             licenses: [
                 { id:'mp3',       name:'MP3 LEASE',   mult:1,  tagline:'Tagless MP3',      terms:['Untagged MP3 file','Up to 50,000 streams','1 music video','2 radio stations'] },
-                { id:'wav',       name:'WAV LEASE',   add:15,  tagline:'WAV + MP3',        terms:['WAV + MP3 files','Up to 150,000 streams','1 music video','Distribute 5,000 copies'] },
-                { id:'stems',     name:'TRACKOUT',    add:45,  tagline:'Full Stems',       terms:['Track stems + WAV + MP3','Up to 500,000 streams','Unlimited radio','For mix engineers'] },
-                { id:'unlimited', name:'UNLIMITED',   add:90,  tagline:'Unlimited use',    terms:['Stems + WAV + MP3','Unlimited streams & sales','Unlimited radio','Non-exclusive'] },
-                { id:'exclusive', name:'EXCLUSIVE',   mult:10, tagline:'Own it fully',     terms:['Full ownership transfer','Beat pulled from store','Every file delivered','Unlimited everything'] }
+                { id:'wav',       name:'WAV LEASE',   add:10,  tagline:'WAV + MP3',        terms:['WAV + MP3 files','Up to 150,000 streams','1 music video','Distribute 5,000 copies'] },
+                { id:'stems',     name:'TRACKOUT',    add:20,  tagline:'Full Stems',       terms:['Track stems + WAV + MP3','Up to 500,000 streams','Unlimited radio','For mix engineers'] },
+                { id:'unlimited', name:'UNLIMITED',   add:40,  tagline:'Unlimited use',    terms:['Stems + WAV + MP3','Unlimited streams & sales','Unlimited radio','Non-exclusive'] },
+                { id:'exclusive', name:'EXCLUSIVE',   mult:4,  tagline:'Own it fully',     terms:['Full ownership transfer','Beat pulled from store','Every file delivered','Unlimited everything'] }
             ]
         };
 
@@ -968,7 +968,7 @@
                         <div class="min-w-0">
                             <span class="font-bold text-lg sm:text-2xl tracking-tight block truncate">${beat.title}</span>
                             <div class="flex items-center gap-3 text-xs mt-1 ${playing?'text-zinc-700':'text-zinc-500 group-hover:text-zinc-400'}">
-                                <span>${beat.bpm} BPM</span><span>// ${beat.key}</span>
+                                <span>${beat.bpm} BPM</span><span>// ${beat.key}</span><span id="dur-${beat.id}">${durationCache[beat.id]!=null?fmtTime(durationCache[beat.id]):''}</span>
                             </div>
                         </div>
                     </div>
@@ -989,6 +989,20 @@
             });
             lucide.createIcons();
             updateProgressUI();
+            list.forEach(loadDuration);   // fill in beat durations from their mp3
+        }
+
+        // ---- beat duration (auto-read from the mp3) ----
+        const durationCache = {};
+        function fmtTime(s){ s = Math.round(s); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+        function setDur(id, sec){ const el = document.getElementById('dur-'+id); if(el) el.innerText = fmtTime(sec); }
+        function loadDuration(beat){
+            if(!beat.audio) return;                          // synth-only beats have no fixed length
+            if(durationCache[beat.id] != null){ setDur(beat.id, durationCache[beat.id]); return; }
+            const a = new Audio(); a.preload = 'metadata'; a.src = mediaUrl(beat.audio, 'beats');
+            a.addEventListener('loadedmetadata', ()=>{
+                if(isFinite(a.duration) && a.duration > 0){ durationCache[beat.id] = a.duration; setDur(beat.id, a.duration); }
+            });
         }
 
         /* ============ RENDER: KITS ============ */
