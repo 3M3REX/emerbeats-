@@ -26,6 +26,29 @@ window.STORE_DATA = {
           "audio": "EmerBeats - LORA.mp3"
         }
       ]
+    },
+    {
+      "id": "ams6jdah9",
+      "title": "HOSHI",
+      "tag": "Vol. 1",
+      "year": 2026,
+      "cover": "1.jpg",
+      "beats": [
+        {
+          "id": 3,
+          "title": "EmerBeats - ALICE",
+          "bpm": 147,
+          "key": "D Maj",
+          "price": 25,
+          "free": false,
+          "freeUrl": "",
+          "tags": [
+            "RAGE"
+          ],
+          "code": "EmerBeats - ALICE",
+          "audio": "EmerBeats - ALICE.mp3"
+        }
+      ]
     }
   ],
   "kits": [
