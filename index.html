@@ -13,6 +13,7 @@
     <meta property="og:description" content="Dark trap, rage & opium type beats. Leases, trackouts & exclusives.">
     <meta property="og:type" content="website">
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -405,7 +406,7 @@
                 <p class="font-mono text-[10px] uppercase text-zinc-500">Selected: <span id="lic-selected-name" class="text-white">—</span></p>
                 <button id="lic-add-btn" onclick="confirmLicense()" disabled
                     class="font-mono uppercase text-sm bg-white text-black px-8 py-3 font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-300 transition-colors w-full sm:w-auto">
-                    Add to Cart · $<span id="lic-price">0.00</span>
+                    <span id="lic-add-label">Add to Cart</span> · $<span id="lic-price">0.00</span>
                 </button>
             </div>
         </div>
@@ -429,9 +430,15 @@
                     <span class="text-zinc-500 uppercase text-sm">Total</span>
                     <span class="text-white font-bold text-xl">$<span id="order-total">0.00</span></span>
                 </div>
-                <p class="text-[10px] uppercase text-zinc-400 tracking-widest leading-relaxed mb-3">Copy your order and send it to the bot to pay. It contains each item and its code.</p>
-                <textarea id="order-text" readonly onclick="this.select()" class="w-full bg-zinc-950 border border-white/30 p-3 text-white text-[11px] leading-relaxed h-28 resize-none outline-none focus:border-white mb-4"></textarea>
-                <div class="flex flex-col gap-3">
+                <!-- Inside Telegram: one-tap send. Shown/hidden by checkoutBot(). -->
+                <div id="order-actions-tg" class="hidden-tab flex flex-col gap-3">
+                    <p class="text-[10px] uppercase text-zinc-400 tracking-widest leading-relaxed mb-1">Send this order straight to the bot — EmerBeats will reply here about payment.</p>
+                    <button onclick="submitOrder()" class="w-full bg-white text-black font-bold uppercase py-4 hover:bg-zinc-300 transition-colors flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i> Send order to bot</button>
+                </div>
+                <!-- Normal browser: copy the order text & open the bot manually. -->
+                <div id="order-actions-web" class="flex flex-col gap-3">
+                    <p class="text-[10px] uppercase text-zinc-400 tracking-widest leading-relaxed mb-1">Copy your order and send it to the bot to pay. It contains each item and its code.</p>
+                    <textarea id="order-text" readonly onclick="this.select()" class="w-full bg-zinc-950 border border-white/30 p-3 text-white text-[11px] leading-relaxed h-28 resize-none outline-none focus:border-white mb-1"></textarea>
                     <button onclick="copyOrderText()" class="w-full border border-white text-white font-bold uppercase py-3 hover:bg-white hover:text-black transition-colors flex items-center justify-center gap-2"><i data-lucide="copy" class="w-4 h-4"></i> Copy order</button>
                     <a href="#" target="_blank" rel="noopener" onclick="copyOrderText()" class="tg-link w-full bg-white text-black font-bold uppercase py-4 hover:bg-zinc-300 transition-colors flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i> Open @EmerBeatsBot</a>
                 </div>
@@ -548,6 +555,14 @@
 
     <script>
         lucide.createIcons();
+
+        /* ============ TELEGRAM MINI APP ============ */
+        // If the site is opened inside Telegram (via the bot's "🛒 Биты" button),
+        // TG is the WebApp bridge and IN_TG is true. In a normal browser both are falsy
+        // and the site behaves exactly as before (copy-paste checkout).
+        const TG = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        const IN_TG = !!(TG && TG.initData);
+        if (TG) { try { TG.ready(); TG.expand(); } catch (e) {} }
 
         /* ============ DEFAULT DATA (used on first run / after reset) ============ */
         const DEFAULT_DATA = {
@@ -1266,6 +1281,7 @@
                 </button>`).join('');
             document.getElementById('lic-selected-name').innerText = '—';
             document.getElementById('lic-price').innerText = '0.00';
+            document.getElementById('lic-add-label').innerText = IN_TG ? 'Buy in bot' : 'Add to Cart';
             document.getElementById('lic-add-btn').disabled = true;
             document.getElementById('license-modal').classList.remove('hidden-tab');
         }
@@ -1279,8 +1295,11 @@
         function confirmLicense(){
             if(!pendingBeat || !pendingLicense) return;
             const key = `${pendingBeat.id}-${pendingLicense.id}`;
+            const item = { key, id: pendingBeat.id, title: pendingBeat.title, sub: pendingLicense.name, price: licensePrice(pendingBeat.price, pendingLicense), code: beatCode(pendingBeat) };
+            // Inside Telegram: fire the order straight to the bot (the app closes on success).
+            if (IN_TG && sendOrderToBot([item])) { closeLicense(); return; }
             if (!cart.find(c=>c.key===key)){
-                cart.push({ key, id: pendingBeat.id, title: pendingBeat.title, sub: pendingLicense.name, price: licensePrice(pendingBeat.price, pendingLicense), code: beatCode(pendingBeat) });
+                cart.push(item);
                 saveCart(); updateCartUI(); showToast(`${pendingBeat.title} · ${pendingLicense.name} added`);
             } else { showToast('Already in cart'); }
             closeLicense();
@@ -1303,8 +1322,10 @@
         function addKitToCart(kitId){
             const kit = kits.find(k=>k.id===kitId);
             const key = `kit-${kit.id}`;
+            const item = { key, id: kit.id, title: kit.title, sub: kit.type, price: kit.price, code: kitCode(kit) };
+            if (IN_TG && sendOrderToBot([item])) { return; }
             if (!cart.find(c=>c.key===key)){
-                cart.push({ key, id: kit.id, title: kit.title, sub: kit.type, price: kit.price, code: kitCode(kit) });
+                cart.push(item);
                 saveCart(); updateCartUI(); showToast(`${kit.title} added`);
             } else showToast('Already in cart');
         }
@@ -1333,10 +1354,27 @@
         function toggleCart(){ document.getElementById('cart-overlay').classList.toggle('hidden-tab'); }
 
         /* ============ CHECKOUT — copy order & open the Telegram bot ============ */
-        function buildOrderText(){
-            const lines = cart.map(i=>`• ${i.title} — ${i.sub} — ${i.code} — $${i.price.toFixed(2)}`);
-            const total = cart.reduce((s,i)=>s+i.price,0).toFixed(2);
+        function buildOrderTextFrom(items){
+            const lines = items.map(i=>`• ${i.title} — ${i.sub} — ${i.code} — $${i.price.toFixed(2)}`);
+            const total = items.reduce((s,i)=>s+i.price,0).toFixed(2);
             return `EmerBeats order:\n${lines.join('\n')}\nTotal: $${total}`;
+        }
+        function buildOrderText(){ return buildOrderTextFrom(cart); }
+
+        // Send an order straight into the bot chat (no copy-paste). Works only when the
+        // site was launched as a Mini App from the bot's reply-keyboard "🛒 Биты" button.
+        // Returns true if the order was handed off to Telegram (the app then closes).
+        function sendOrderToBot(items){
+            if (!items || !items.length) return false;
+            if (!(TG && typeof TG.sendData === 'function')) return false;
+            const payload = {
+                type: 'order',
+                total: +items.reduce((s,i)=>s+i.price,0).toFixed(2),
+                text: buildOrderTextFrom(items),
+                items: items.map(i=>({ title:i.title, sub:i.sub, code:i.code, price:i.price }))
+            };
+            try { TG.sendData(JSON.stringify(payload)); return true; }
+            catch (e) { return false; }
         }
         function checkoutBot(){
             if(!cart.length){ showToast('Cart is empty'); return; }
@@ -1347,8 +1385,15 @@
                 </div>`).join('');
             document.getElementById('order-total').innerText = cart.reduce((s,i)=>s+i.price,0).toFixed(2);
             document.getElementById('order-text').value = buildOrderText();
+            // Inside Telegram show the one-tap "Send to bot" action; in a browser show copy/open.
+            document.getElementById('order-actions-tg').classList.toggle('hidden-tab', !IN_TG);
+            document.getElementById('order-actions-web').classList.toggle('hidden-tab', IN_TG);
             document.getElementById('order-modal').classList.remove('hidden-tab');
             lucide.createIcons();
+        }
+        function submitOrder(){
+            if (IN_TG && sendOrderToBot(cart)) { return; }
+            copyOrderText();
         }
         function closeOrder(){ document.getElementById('order-modal').classList.add('hidden-tab'); }
         function copyOrderText(){
